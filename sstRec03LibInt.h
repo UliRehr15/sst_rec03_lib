@@ -33,11 +33,48 @@
  * @brief Maximal File Name Length
  * @ingroup sstRecord03InternLib
  */
-#define dREC03FILNAMMAXLEN 260   /**< Maximal File Name Length    */
+#define dREC03FILNAMMAXLEN 260
+
+/**
+ * @brief Maximal Cargo Sys Name Length
+ * @ingroup sstRecord03InternLib
+ */
+#define dREC03CARGONAMMAXLEN 4
 
 
 // Structures and Classes ------------------------------------------------------
 
+//==============================================================================
+/**
+* @brief Adress array for all definied sort types
+*
+* More Comment
+*
+* Changed: 27.10.15  Re.
+*
+* @ingroup sstRecord03InternLib
+*
+* @author Re.
+*
+* @date 27.10.15
+*/
+// ----------------------------------------------------------------------------
+class sstRec03CompValueCls
+{
+  public:   // Public functions
+     sstRec03CompValueCls();   // Constructor
+    // ~X();   // Destructor
+// ----------------------------------------------------------------------------
+     char          *CComp;   /**< Character */
+     int           *IComp;   /**< Integer */
+     long          *LComp;   /**< Long integer */
+     unsigned int  *UIComp;  /**< Unsigned integer */
+     unsigned long *ULComp;  /**< Unsigned long integer */
+     float         *RComp;   /**< float */
+     double        *DComp;   /**< long float */
+  private:  // Private functions
+};
+//-----------------------------------------------------------------------------
 //==============================================================================
 /**
 * @brief sstRecMem Internal Header Class with System Data for every record <BR>
@@ -107,25 +144,25 @@ class sstRec03HeaderCls
      void SetChangeDate();
      //==============================================================================
      /**
-     * @brief set record deleted
+     * @brief set record deleted status
      */
      // ----------------------------------------------------------------------------
      void RecSetDeleted();
      //==============================================================================
      /**
-     * @brief set record marked
+     * @brief set record marked status
      */
      // ----------------------------------------------------------------------------
      void RecSetMarked();
      //==============================================================================
      /**
-     * @brief set record undeleted
+     * @brief set record undeleted status
      */
      // ----------------------------------------------------------------------------
      void RecSetUndeleted();
      //==============================================================================
      /**
-     * @brief set record unmarked
+     * @brief set record unmarked status
      */
      // ----------------------------------------------------------------------------
      void RecSetUnmarked();
@@ -453,10 +490,61 @@ class sstRec03CargoKeyInternCls
      sstRec03CargoKeyInternCls();  // Konstruktor
      ~sstRec03CargoKeyInternCls();  // Destruktor
      int  iKey;           /**< Key of cargo sys */
-     char cNam[4];        /**< Name of cargo sys*/
+     char cNam[dREC03CARGONAMMAXLEN+1];        /**< Name of cargo sys*/
      sstRec03VectSysCls *poCargoAdr;  /**< Adress of cargo object  */
   private:  // Private Funktionen
      // int iDummy;
+};
+//==============================================================================
+/**
+* @brief Tree node data are stored inside record
+*
+* More Comment
+*
+* Changed: 27.10.15  Re.
+*
+* @ingroup sstRecord03InternLib
+*
+* @author Re.
+*
+* @date 27.10.15
+*/
+// ----------------------------------------------------------------------------
+class sstRec03TreeCls
+{
+  public:
+    sstRec03TreeCls();
+    dREC03RECNUMTYP Links_LT;   /**< left branch smaller */
+    dREC03RECNUMTYP Rechts_GE;  /**< right branch greater/equal */
+  private:  // Private functions
+};
+//==============================================================================
+/**
+* @brief All internal data for tree object
+*
+* Are stored in array inside RecMem object
+*
+* Changed: 27.10.15  Re.
+*
+* @ingroup sstRecord03InternLib
+*
+* @author Re.
+*
+* @date 27.10.15
+*/
+// ----------------------------------------------------------------------------
+class sstRec03TreeKeyInternCls
+{
+public:
+  sstRec03TreeKeyInternCls();
+  // ~sstRec03TreeKeyInternCls();
+  dREC03RECNUMTYP    Root;              /**< Base record of actual tree */
+  int                AdrOfs;            /**< Offset of sort value from start of full record */
+  int                Offset;            /**< Offset of sort value from start of user record */
+  int                Size;              /**< Size of sort value */
+  sstRec03CompTyp_enum   Typ;               /**< Type of sort value */
+  sstRec03CargoKeyInternCls *oDataKey;  /**< Data key object */
+private:  // Private functions
 };
 //==============================================================================
 /**
@@ -822,7 +910,269 @@ class sstRec03InternCls
      // ----------------------------------------------------------------------------
      bool RecGetMarkStatus( int               iKey,
                             dREC03RECNUMTYP   dRecNo);
+     //=============================================================================
+     /**
+     * @brief Init new Tree System
+     *
+     * @param iKey    [in] For the moment 0
+     * @param DsAdr   [in] Adress of record
+     * @param CompAdr [in] Adress of compare value in record
+     * @param CompSiz [in] Size of compare value
+     * @param CompTyp [in] Type of compare value
+     * @param oTre    [in] New Tree system
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int TreIni ( int              iKey,
+                  void            *DsAdr,
+                  void            *CompAdr,
+                  int              CompSiz,
+                  sstRec03CompTyp_enum     CompTyp,
+                  sstRec03TreeKeyCls   *oTre);
+     //=============================================================================
+     /**
+     * @brief Rebuild Tree system
+     *
+     * iStat = oDss.TreBld ( iKey, *oTre);
+     *
+     * @param iKey [in]     For the moment 0
+     * @param oTre [in out] Tree to rebuild
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int TreBld ( int              iKey,
+                  sstRec03TreeKeyCls   *oTre);
      //==============================================================================
+     /**
+     * @brief // Insert new record ii in tree otre with root record  <BR>
+     * iStat = oRecMem.DSiTreIns2(iKey, *oTre, dRecNoOld, dRecNoNew, *vRecAdr)
+     *
+     * @param iKey      [in] For the moment 0
+     * @param oTre      [in] Tree object
+     * @param dRecNoOld [in] Root or base record
+     * @param dRecNoNew [in] record to insert in tree
+     * @param vRecAdr   [in] adress of compare value for record new
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     dREC03RECNUMTYP DSiTreIns2 ( int            iKey,
+                               sstRec03TreeKeyCls    *oTre,
+                               dREC03RECNUMTYP   dRecNoOld,
+                               dREC03RECNUMTYP   dRecNoNew,
+                               void             *vRecAdr);
+     //=============================================================================
+     /**
+     * @brief Get next greater or equal
+     *
+     * @param iKey  [in]     For the moment 0
+     * @param oTre  [in out] Tree system
+     * @param DSatz [in]     actual dataset
+     * @param SNr   [out]    Return next greater or equal
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int TreReadNxtGE (int              iKey,
+                      sstRec03TreeKeyCls   *oTre,
+                      void            *DSatz,
+                      dREC03RECNUMTYP    *SNr);
+     //=============================================================================
+     /**
+     * @brief Return first record number
+     *
+     * @param iKey [in]     For the moment 0
+     * @param oTre [in out] Tree system
+     * @param SNr  [out]    Return record number
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int TreSeaFrst ( int            iKey,
+                      sstRec03TreeKeyCls *oTre,
+                      dREC03RECNUMTYP  *SNr);
+     //=============================================================================
+     /**
+     * @brief Seach next greater
+     *
+     * @param iKey [in]     For the moment 0
+     * @param oTre [in out] Tree system
+     * @param SNr1 [in]     actual record number
+     * @param SNr2 [out]    next record number
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int TreSeaNxtGT ( int             iKey,
+                       sstRec03TreeKeyCls  *oTre,
+                       dREC03RECNUMTYP    SNr1,
+                       dREC03RECNUMTYP   *SNr2);
+     //==============================================================================
+     /**
+     * @brief // Is true, if Compare Value AdrOld is greater than AdrNew  <BR>
+     * iStat = oRecMem.DSiVarCompGT(iKey,eType,vAdrOld,vAdrNew)
+     *
+     * @param iKey    [in] For the moment 0
+     * @param eType   [in] For the moment 0
+     * @param vAdrOld [in] For the moment 0
+     * @param vAdrNew [in] For the moment 0
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiVarCompGT (int               iKey,
+                       sstRec03CompTyp_enum *eType,
+                       void             *vAdrOld,
+                       void             *vAdrNew);
+     //==============================================================================
+     /**
+     * @brief // Set type and adress for compare value in ValSet <BR>
+     * iStat = oRecMem.DSiCompValue(iKey,vValueAdr,eCompTyp,poCompValue);
+     *
+     * @param iKey        [in]  For the moment 0
+     * @param vValueAdr   [in]  Adress of Compare Value
+     * @param eCompTyp    [in]  Type of compare value
+     * @param poCompValue [out] return object for comparing
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiCompValue (int                 iKey,
+                       void               *vValueAdr,
+                       sstRec03CompTyp_enum   *eCompTyp,
+                       sstRec03CompValueCls       *poCompValue);
+     //==============================================================================
+     /**
+     * @brief // In Tree oTre for Record 1 seach next greater Record 2 <BR>
+     * iStat = oRecMem.DSiTreSeaNxtGT(iKey,oTre,dRecNo,dRecNo1,*dRecNo2);
+     *
+     * @param iKey     [in]  0,1, or 2
+     * @param oTre     [in]  Tree object
+     * @param dRecNo   [in]  Record Number base
+     * @param dRecNo1  [in]  Record Number 1
+     * @param pdRecNo2 [out] Result Record Number 2
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiTreSeaNxtGT ( int              *iKey,
+                          sstRec03TreeKeyCls    *oTre,
+                          dREC03RECNUMTYP   dRecNo,
+                          dREC03RECNUMTYP   dRecNo1,
+                          dREC03RECNUMTYP  *pdRecNo2);
+     //=============================================================================
+     /**
+     * @brief // Read record dRecNo into vRecAdc Memory and return tree node data of tree oTre <BR>
+     * iStat = oRecMem.DSiTreDatGet(iKey,*poTre,dRecNo,*vRecAdr,*poTreData);
+     *
+     * @param iKey      [in] For the moment 0
+     * @param poTre     [in] Tree object
+     * @param dRecNo    [in] Record number
+     * @param vRecAdr   [in] adress of temporary record memory
+     * @param poTreData [out] Return Tree node data
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiTreDatGet ( int                 iKey,
+                        sstRec03TreeKeyCls      *poTre,
+                        dREC03RECNUMTYP     dRecNo,
+                        void               *vRecAdr,
+                        sstRec03TreeCls    *poTreData);
+     //==============================================================================
+     /**
+     * @brief Write Tree Data into vector and write vector into RecMem
+     *
+     * Was used by delete record functions
+     *
+     * @param iKey   [in] For the moment 0
+     * @param oTre   [in]
+     * @param SNr    [in]
+     * @param DSatz  [in]
+     * @param TreDat [in]
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     //=============================================================================
+     int DSiTreDatSet ( int             iKey,
+                        sstRec03TreeKeyCls  *oTre,
+                        dREC03RECNUMTYP    SNr,
+                        void           *DSatz,
+                        sstRec03TreeCls    *TreDat);
+     //=============================================================================
+     /**
+     * @brief // Return adress of tree data in record vActDs <BR>
+     * iStat= oRecMem.DSiTreAdrGet(iKey,oTre,vActRec,poRecTreeData)
+     *
+     * @param iKey       [in]  For the moment 0
+     * @param oTre       [in]  Tree object
+     * @param vActRec    [in]  Record data
+     * @param poTreeData [out] adress of tree data in record
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiTreAdrGet ( int              iKey,
+                        sstRec03TreeKeyCls   *oTre,
+                        void            *vActRec,
+                        sstRec03TreeCls *poTreeData);
+     //==============================================================================
+     /**
+     * @brief Write Tree Data into vector
+     *
+     * @param iKey     [in] For the moment 0
+     * @param oTre     [in] For the moment 0
+     * @param oTreData [in] For the moment 0
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiTreAdrSet ( int              iKey,
+                        sstRec03TreeKeyCls   *oTre,
+                        sstRec03TreeCls     *oTreData);
+     //==============================================================================
+
 
   private:  // Private functions
      //==============================================================================
@@ -839,6 +1189,12 @@ class sstRec03InternCls
      // ----------------------------------------------------------------------------
     void inflate(int increase);
     //==============================================================================
+    //=============================================================================
+    void CalcSetPos ( void   *BasPtr,
+                      void  **IdxPtr,
+                      long    Offs) const;
+    //=============================================================================
+
     // dREC03RECSIZTYP dUsrSize;     /**< Size of each user record */
     dREC03RECNUMTYP dQuantity;     /**< Number of storage spaces */
     dREC03RECNUMTYP dActStored;   /**< Number of stored records */
@@ -850,6 +1206,8 @@ class sstRec03InternCls
     sstRec03VectSysCls *poVector;  /**< Intern memory space for vector            */
     sstRec03CargoKeyInternCls *poRecMemUsrKey;   /**< Identification Key for Header Cargo */
     sstRec03CargoKeyInternCls *poRecMemSysKey;   /**< Identification Kea for User Data Cargo */
+    sstRec03TreeKeyInternCls   *Tre;        /**< Adresse aller BaumverwaltungsDatensätze im Heap    */
+    int           iTriAnz;    /**< Anzahl Baumverwaltungs-Datensätze                  */
 };
 //==============================================================================
 // iStat = Test_VectorSys_Stack ( iKey);

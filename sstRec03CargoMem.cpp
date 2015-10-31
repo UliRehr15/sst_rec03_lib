@@ -60,7 +60,7 @@ char* sstRec03CargoMemCls::GetCargoSysNam()
 //=============================================================================
 void sstRec03CargoMemCls::SetCargoSysNam(char *cTmpNam)
 {
-  strncpy(this->cNam,cTmpNam,4);
+  strncpy(this->cNam,cTmpNam,dREC03CARGONAMMAXLEN);
 }
 //=============================================================================
 void* sstRec03CargoMemCls::GetCargoAdr()

@@ -47,14 +47,14 @@ int sstRec03VectSysCls::AddCargoSys( int             iKey,
 
   if ( iKey != 0) return -1;  // Wrong Key
   if ( uiSize <= 0) return -2;  // Cargo Packet must not be empty
-  iStat = strlen(cCargoNam);  // Cargo Name has to be length 3
-  if(iStat !=3) return -3;
+  iStat = strlen(cCargoNam);  // Cargo Name has to be defined length
+  if(iStat != dREC03CARGONAMMAXLEN) return -3;
   if (oCargoKey->iKey != 0) return -4;   // Cargo Key should be emtpy
 
   // is new cargo sys name unique?
   for (unsigned int ii=1; ii<=this->uiNumCargoSys; ii++)
   {
-    iStat = strncmp(this->poMemAdr[ii-1].GetCargoSysNam(), cCargoNam, 4);
+    iStat = strncmp(this->poMemAdr[ii-1].GetCargoSysNam(), cCargoNam, dREC03CARGONAMMAXLEN);
     if (iStat == 0) return -5;
   }
 

@@ -47,6 +47,10 @@ SOURCES       = sstRec03.cpp \
 		sstRec03TestRec.cpp \
 		sstRec03Header.cpp \
 		sstRec03CargoMem.cpp \
+		sstRec03CompValue.cpp \
+		sstRec03Tree.cpp \
+		sstRec03TreeKeyIntern.cpp \
+		sstRec03TreeKey.cpp \
 		sstRec03CargoKey.cpp \
 		sstRec03CargoKeyInt.cpp \
 		sstRec03Int.cpp \
@@ -56,6 +60,10 @@ OBJECTS       = sstRec03.o \
 		sstRec03TestRec.o \
 		sstRec03Header.o \
 		sstRec03CargoMem.o \
+		sstRec03CompValue.o \
+		sstRec03Tree.o \
+		sstRec03TreeKeyIntern.o \
+		sstRec03TreeKey.o \
 		sstRec03CargoKey.o \
 		sstRec03CargoKeyInt.o \
 		sstRec03Int.o \
@@ -319,6 +327,22 @@ sstRec03Header.o: sstRec03Header.cpp Header/sstRec03Lib.h \
 sstRec03CargoMem.o: sstRec03CargoMem.cpp Header/sstRec03Lib.h \
 		sstRec03LibInt.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sstRec03CargoMem.o sstRec03CargoMem.cpp
+
+sstRec03CompValue.o: sstRec03CompValue.cpp Header/sstRec03Lib.h \
+		sstRec03LibInt.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sstRec03CompValue.o sstRec03CompValue.cpp
+
+sstRec03Tree.o: sstRec03Tree.cpp Header/sstRec03Lib.h \
+		sstRec03LibInt.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sstRec03Tree.o sstRec03Tree.cpp
+
+sstRec03TreeKeyIntern.o: sstRec03TreeKeyIntern.cpp Header/sstRec03Lib.h \
+		sstRec03LibInt.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sstRec03TreeKeyIntern.o sstRec03TreeKeyIntern.cpp
+
+sstRec03TreeKey.o: sstRec03TreeKey.cpp Header/sstRec03Lib.h \
+		sstRec03LibInt.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sstRec03TreeKey.o sstRec03TreeKey.cpp
 
 sstRec03CargoKey.o: sstRec03CargoKey.cpp Header/sstRec03Lib.h \
 		sstRec03LibInt.h

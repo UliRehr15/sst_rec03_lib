@@ -20,7 +20,7 @@
 #define   _SST_REC03_LIB_HEADER
 
 /**
- * @defgroup sstRecord03Lib sstRecord03Lib: cpp sst record library (Version 2)
+ * @defgroup sstRecord03Lib sstRecord03Lib: cpp sst record library (Version 3)
  *
  * cpp sst record library <BR>
  *
@@ -57,6 +57,32 @@ class sstRec03CargoKeyInternCls;
 
 //==============================================================================
 /**
+* @brief Definition Enum CompTyp_enum
+*
+* All possible compare types
+*
+* Changed: 30.10.15  Re.
+*
+* @ingroup sstRecord03Lib
+*
+* @author Re.
+*
+* @date 30.10.15
+*/
+// ----------------------------------------------------------------------------
+enum _sstRec03CompTyp_enum
+{ stDs2_No,     /**< No Sorttyp              */
+  stDs2_I2,     /**< Signed Short Integer    */
+  stDs2_I4,     /**< Signed Long Integer     */
+  stDs2_UI,     /**< Unsigned Short Integer  */
+  stDs2_UL,     /**< Unsigned Long Integer   */
+  stDs2_R4,     /**< Real                    */
+  stDs2_D8,     /**< Double                  */
+  stDs2_CC      /**< Character String        */
+     };
+typedef enum _sstRec03CompTyp_enum sstRec03CompTyp_enum;
+//==============================================================================
+/**
 * @brief Identification Key for cargo packets
 *
 * Changed: 16.10.15  Re.
@@ -79,7 +105,29 @@ class sstRec03CargoKeyCls
 };
 //==============================================================================
 /**
-* @brief sst Record Memory Vers. 2 sstRec03Cls
+* @brief Identification key of tree object
+*
+* More Comment
+*
+* Changed: 27.10.15  Re.
+*
+* @ingroup sstRecord03Lib
+*
+* @author Re.
+*
+* @date 27.10.15
+*/
+// ----------------------------------------------------------------------------
+class sstRec03TreeKeyCls
+{
+public:
+  sstRec03TreeKeyCls();
+  // ~sstRec03TreeKeyCls();
+  int iTriNo;  /**< Internal Number of Tree-Object */
+};
+//==============================================================================
+/**
+* @brief sst Record Memory Vers. 3
 *
 * record storage <BR>
 *
@@ -376,8 +424,105 @@ public:
   // ----------------------------------------------------------------------------
   bool RecGetMarkStatus( int               iKey,
                          dREC03RECNUMTYP   dRecNo);
-  //==============================================================================
+  //=============================================================================
+  /**
+  * @brief // Init new Tree sorting object for RecMem object  <BR>
+  * iStat = oRecMem.TreIni ( iKey, *vDsAdr, *vCompAdr, iCompSiz, eCompTyp, *poTre);
+  *
+  * @param iKey     [in]  For the moment 0
+  * @param vDsAdr   [in]  Adress of record
+  * @param vCompAdr [in]  Adress of compare value in record
+  * @param iCompSiz [in]  Size of compare value
+  * @param eCompTyp [in]  Type of compare value
+  * @param poTre    [out] New Tree system
+  *
+  * @return Errorstate
+  *
+  * @retval   = 0: OK
+  * @retval   < 0: Unspecified Error
+  */
+  // ----------------------------------------------------------------------------
+  int TreIni ( int                iKey,
+               void              *vDsAdr,
+               void              *vCompAdr,
+               int                iCompSiz,
+               sstRec03CompTyp_enum   eCompTyp,
+               sstRec03TreeKeyCls     *poTre);
+  //=============================================================================
+  /**
+  * @brief // Rebuild Tree system  <BR>
+  * iStat = oRecMem.TreBld ( iKey, *poTre);
+  *
+  * @param iKey  [in]     For the moment 0
+  * @param poTre [in out] Tree to rebuild
+  *
+  * @return Errorstate
+  *
+  * @retval   = 0: OK
+  * @retval   < 0: Unspecified Error
+  */
+  // ----------------------------------------------------------------------------
+  int TreBld ( int              iKey,
+               sstRec03TreeKeyCls   *poTre);
+  //=============================================================================
+  /**
+  * @brief Get next greater or equal <BR>
+  * iStat = iRecMem.TreReadNxtGE ( iKey, *poTre, *vRecAdr, *dRecNo);
+  *
+  * @param iKey     [in]     For the moment 0
+  * @param poTre    [in out] Tree system
+  * @param vRecAdr  [in]     actual dataset
+  * @param dRecNo   [out]    Return next greater or equal
+  *
+  * @return Errorstate
+  *
+  * @retval   = 0: OK
+  * @retval   < 0: Unspecified Error
+  */
+  // ----------------------------------------------------------------------------
+  int TreReadNxtGE (int               iKey,
+                    sstRec03TreeKeyCls    *poTre,
+                    void             *vRecAdr,
+                    dREC03RECNUMTYP  *dRecNo);
+  //=============================================================================
+  /**
+  * @brief // Return first record number <BR>
+  * iStat = oRecMem.TreSeaFrst ( iKey, *poTre, *dRecNo);
+  *
+  * @param iKey    [in]     For the moment 0
+  * @param poTre   [in out] Tree system
+  * @param dRecNo  [out]    Return record number
+  *
+  * @return Errorstate
+  *
+  * @retval   = 0: OK
+  * @retval   < 0: Unspecified Error
+  */
+  // ----------------------------------------------------------------------------
+  int TreSeaFrst ( int               iKey,
+                   sstRec03TreeKeyCls    *poTre,
+                   dREC03RECNUMTYP  *dRecNo);
 
+  //=============================================================================
+  /**
+  * @brief // Seach next greater  <BR>
+  * iStat = oRecMem.TreSeaNxtGT ( iKey, *poTre, dRecNo1, *dRecNo2);
+  *
+  * @param iKey    [in]     For the moment 0
+  * @param poTre   [in out] Tree system
+  * @param dRecNo1 [in]     actual record number
+  * @param dRecNo2 [out]    next record number
+  *
+  * @return Errorstate
+  *
+  * @retval   = 0: OK
+  * @retval   < 0: Unspecified Error
+  */
+  // ----------------------------------------------------------------------------
+  int TreSeaNxtGT ( int                iKey,
+                    sstRec03TreeKeyCls     *poTre,
+                    dREC03RECNUMTYP    dRecNo1,
+                    dREC03RECNUMTYP   *dRecNo2);
 
 private:
   sstRec03InternCls *poRec01Intern;   /**< Pointer to intern object */
@@ -401,6 +546,22 @@ class sstRec03TestRec1Cls
 {
   public:   // Public functions
      sstRec03TestRec1Cls();  // Constructor
+     //==============================================================================
+     /**
+     * @brief // Set all Values for test record 1 <BR>
+     * oTestRecord1.SetAllValues(iTstValue,cTstValue)
+     *
+     * @param iTstVal [in] Set Integer Test Value
+     * @param cTstVal [in] Set Character Test Value
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int SetAllValues(int iTstVal, char *cTstVal);
+
      int iValue;        /**< Test Integer Value */
      char cVal[5];     /**< Test Character Value */
 

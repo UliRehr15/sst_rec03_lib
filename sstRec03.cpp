@@ -177,3 +177,46 @@ bool sstRec03Cls::RecGetMarkStatus( int               iKey,
   return this->poRec01Intern->RecGetMarkStatus( iKey, dRecNo);
 }
 //==============================================================================
+int sstRec03Cls::TreIni ( int              iKey,
+             void            *DsAdr,
+             void            *CompAdr,
+             int              CompSiz,
+             sstRec03CompTyp_enum     CompTyp,
+             sstRec03TreeKeyCls   *oTre)
+{
+  return this->poRec01Intern->TreIni(iKey,DsAdr,CompAdr,CompSiz,CompTyp,oTre);
+}
+//==============================================================================
+int sstRec03Cls::TreBld ( int              iKey,
+             sstRec03TreeKeyCls   *oTre)
+{
+  return this->poRec01Intern->TreBld(iKey,oTre);
+}
+
+//==============================================================================
+int sstRec03Cls::TreReadNxtGE (int              iKey,
+                 sstRec03TreeKeyCls   *oTre,
+                 void            *DSatz,
+                 dREC03RECNUMTYP   *SNr)
+{
+  return this->poRec01Intern->TreReadNxtGE(iKey,oTre,DSatz,SNr);
+}
+
+//==============================================================================
+int sstRec03Cls::TreSeaFrst ( int            iKey,
+                 sstRec03TreeKeyCls *oTre,
+                 dREC03RECNUMTYP  *SNr)
+{
+  return this->poRec01Intern->TreSeaFrst(iKey,oTre,SNr);
+}
+
+//==============================================================================
+int sstRec03Cls::TreSeaNxtGT ( int             iKey,
+                  sstRec03TreeKeyCls  *oTre,
+                  dREC03RECNUMTYP    SNr1,
+                  dREC03RECNUMTYP   *SNr2)
+{
+  return this->poRec01Intern->TreSeaNxtGT(iKey,oTre,SNr1,SNr2);
+}
+
+//==============================================================================

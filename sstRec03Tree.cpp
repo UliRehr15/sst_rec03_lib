@@ -3,7 +3,7 @@
  * sst_rec_lib - library for working with data records
  * Hosted on github
  *
- * Copyright (C) 2015 Hans Ulrich Rehr
+ * Copyright (C) 2015 Uli Rehr
  *
  * This is free software; you can redistribute and/or modify it under
  * the terms of the GNU Lesser General Public Licence as published
@@ -11,36 +11,21 @@
  * See the COPYING file for more information.
  *
  **********************************************************************/
-// sstRec03TestRec.cpp    17.10.15  Re.    17.10.15  Re.
+// sstRec03Tree.cpp    20.10.15  Re.    20.10.15  Re.
 //
 
-#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+#include <assert.h>
 
 #include "sstRec03Lib.h"
 #include "sstRec03LibInt.h"
 
 //==============================================================================
-sstRec03TestRec1Cls::sstRec03TestRec1Cls()
+sstRec03TreeCls::sstRec03TreeCls()
 {
-  this->iValue = 0;
-  memset(this->cVal,0,sizeof(this->cVal));
-}
-//=============================================================================
-int sstRec03TestRec1Cls::SetAllValues(int iTmpVal, char *cTmpVal)
-{
-  iValue = iTmpVal;
-  strncpy(cVal,cTmpVal,10);
-  return 0;
-}
-//==============================================================================
-sstRec03TestRec2Cls::sstRec03TestRec2Cls()
-{
-  this->iValue = 0;
-  this->uiValue = 0;
-  this->dValue = 0.0;
-  memset(this->cVal,0,sizeof(this->cVal));
+  this->Links_LT = 0;
+  this->Rechts_GE = 0;
 }
 //==============================================================================

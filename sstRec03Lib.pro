@@ -17,7 +17,11 @@ SOURCES		+=  sstRec03.cpp \
     sstRec03TestIntern.cpp \
     sstRec03TestRec.cpp \
     sstRec03Header.cpp \
-    sstRec03CargoMem.cpp
+    sstRec03CargoMem.cpp \
+    sstRec03CompValue.cpp \
+    sstRec03Tree.cpp \
+    sstRec03TreeKeyIntern.cpp \
+    sstRec03TreeKey.cpp
     #sstRec02Cargo.cpp
 SOURCES		+=  sstRec03CargoKey.cpp
 SOURCES		+=  sstRec03CargoKeyInt.cpp

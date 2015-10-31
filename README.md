@@ -1,5 +1,4 @@
 # sst_rec03_lib
-Fork from sst_rec02_lib
 
 sstRec03Lib - Library for working with records
 
@@ -15,7 +14,8 @@ Structure of coding projects should be:
    [sstRec03Lib]<BR>
    [Doxygen_ouput]
 
-October 2015, Hanover, Germany, Uli Rehr
+Oktober 2015, Hanover, Germany, Uli Rehr
 
 Versions <BR>
-20151030: 3.0 Fork for sst_rec02_lib  <BR>
+20151030: 3.0 Fork from sstRec02 <BR>
+20151031: 3.1 Add Tree sorting system. Define one or more sort trees. <BR>

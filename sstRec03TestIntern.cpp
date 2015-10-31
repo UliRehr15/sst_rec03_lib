@@ -68,7 +68,7 @@ int Test_VectorSys_Stack (int iKey) // v  -> For the moment 0
     sstRec03TestRec2Cls oCargoData21;
     sstRec03TestRec2Cls oCargoData22;
 
-    iStat = oDssDataSys.AddCargoSys( 0, sizeof(oCargoData11), (char*) "XXX", &oDssDataKey1);
+    iStat = oDssDataSys.AddCargoSys( 0, sizeof(oCargoData11), (char*) "XXXX", &oDssDataKey1);
 
   if(iStat != 0)  {    assert(0);  }
 
@@ -80,7 +80,7 @@ int Test_VectorSys_Stack (int iKey) // v  -> For the moment 0
   iStat = oDssDataSys.RedCargo ( 0, &oDssDataKey1, &oCargoData12);
   if(oCargoData11.iValue != oCargoData12.iValue) assert(0);
 
-  iStat = oDssDataSys.AddCargoSys( 0, sizeof(oCargoData21), (char*) "YYY", &oDssDataKey2);
+  iStat = oDssDataSys.AddCargoSys( 0, sizeof(oCargoData21), (char*) "YYYY", &oDssDataKey2);
 
   iStat = oDssDataSys.RedCargo ( 0, &oDssDataKey1, &oCargoData12);
   if(oCargoData11.iValue != oCargoData12.iValue) assert(0);
@@ -138,7 +138,7 @@ int Test_VectorSys_Heap (int iKey) // v  -> For the moment 0
     oDssDataKey1 = new (sstRec03CargoKeyInternCls);
     oDssDataKey2 = new (sstRec03CargoKeyInternCls);
 
-    iStat = oDssDataSys->AddCargoSys( 0, sizeof(oCargoData11), (char*) "XXX", oDssDataKey1);
+    iStat = oDssDataSys->AddCargoSys( 0, sizeof(oCargoData11), (char*) "XXXX", oDssDataKey1);
 
   if(iStat != 0)  {    assert(0);  }
 
@@ -151,7 +151,7 @@ int Test_VectorSys_Heap (int iKey) // v  -> For the moment 0
 
   if(oCargoData11.iValue != oCargoData12.iValue) assert(0);
 
-  iStat = oDssDataSys->AddCargoSys( 0, sizeof(oCargoData21), (char*) "YYY", oDssDataKey2);
+  iStat = oDssDataSys->AddCargoSys( 0, sizeof(oCargoData21), (char*) "YYYY", oDssDataKey2);
 
   iStat = oDssDataSys->AddCargoSys( 0, sizeof(oCargoData21), (char*) "ZZZ", oDssDataKey2);
 
