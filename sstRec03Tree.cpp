@@ -23,9 +23,9 @@
 #include "sstRec03LibInt.h"
 
 //==============================================================================
-sstRec03TreeCls::sstRec03TreeCls()
+sstRec03TreeNodeCls::sstRec03TreeNodeCls()
 {
-  this->Links_LT = 0;
-  this->Rechts_GE = 0;
+  this->dLeft_LT = 0;
+  this->dRight_GE = 0;
 }
 //==============================================================================

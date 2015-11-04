@@ -201,7 +201,6 @@ int sstRec03Cls::TreReadNxtGE (int              iKey,
 {
   return this->poRec01Intern->TreReadNxtGE(iKey,oTre,DSatz,SNr);
 }
-
 //==============================================================================
 int sstRec03Cls::TreSeaFrst ( int            iKey,
                  sstRec03TreeKeyCls *oTre,
@@ -209,7 +208,6 @@ int sstRec03Cls::TreSeaFrst ( int            iKey,
 {
   return this->poRec01Intern->TreSeaFrst(iKey,oTre,SNr);
 }
-
 //==============================================================================
 int sstRec03Cls::TreSeaNxtGT ( int             iKey,
                   sstRec03TreeKeyCls  *oTre,
@@ -218,5 +216,11 @@ int sstRec03Cls::TreSeaNxtGT ( int             iKey,
 {
   return this->poRec01Intern->TreSeaNxtGT(iKey,oTre,SNr1,SNr2);
 }
-
+//==============================================================================
+int sstRec03Cls::TreWriteNew( int               iKey,
+                            void            *vRecAdr,
+                            dREC03RECNUMTYP *dRecNo)
+{
+  return this->poRec01Intern->TreWriteNew( iKey, vRecAdr, dRecNo);
+}
 //==============================================================================

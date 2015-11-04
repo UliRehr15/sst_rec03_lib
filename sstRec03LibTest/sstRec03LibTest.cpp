@@ -11,9 +11,9 @@
  * See the COPYING file for more information.
  *
  **********************************************************************/
-// sst_rec02_lib_test.cpp    13.09.15  Re.    13.09.15  Re.
+// sst_rec03_lib_test.cpp    13.09.15  Re.    13.09.15  Re.
 //
-// test frame for sstRec02Lib
+// test frame for sstRec03Lib
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,29 +26,37 @@
 
 #define BUFSIZE 100
 
-int main() {
+int main()
+{
 
 //=============================================================================
-    int iStat = 0;
-    // Do some intern Tests
-    iStat = sstRec03_DoSomeInternTests ( 0);
-    assert(iStat >= 0);
+  int iStat = 0;
 
-    {
+  // Do some intern Tests
+  iStat = sstRec03_DoSomeInternTests ( 0);
+  assert(iStat >= 0);
 
-    sstRec03Cls oRecMem_Int(sizeof(int));
-    dREC03RECNUMTYP index = 0;
+  {
+
+    // Define new RecMem table object in heap for integer records
+    int iTestVal = 0;
+    sstRec03Cls oRecMem_Int(sizeof(iTestVal));
+    dREC03RECNUMTYP dRecNo = 0;
 
     // standard errors
-    iStat = oRecMem_Int.Read(0,2,&index);
+
+    // Read record 2 from RecMem
+    iStat = oRecMem_Int.Read(0,2,&iTestVal);
     assert(iStat < 0);  // Error: Memory is empty
 
-    iStat = oRecMem_Int.Writ(0,&index,2);
+    // Write record 2 into RecMem
+    iStat = oRecMem_Int.Writ(0,&iTestVal,2);
     assert(iStat < 0);  // Error: Memory is empty
 
+    // write 100 Integer records in RecMem
     for(int j = 1; j <= 100; j++)
     {
-      oRecMem_Int.WritNew(0,&j,&index);
+      oRecMem_Int.WritNew(0,&j,&dRecNo);
     }
 
     // Write record at position 2 into sstRec memory
@@ -60,11 +68,11 @@ int main() {
     assert(file);
     // Holds 100-character strings:
     sstRec03Cls oRecMem_Str(sizeof(char) * BUFSIZE);
-    index = 1;
+    dRecNo = 1;
     char buf[BUFSIZE];
     while(fgets(buf, BUFSIZE, file))
     {
-        oRecMem_Str.WritNew(0,buf,&index);
+        oRecMem_Str.WritNew(0,buf,&dRecNo);
     }
     fclose(file);
 
@@ -95,9 +103,9 @@ int main() {
       int iStat = intStash.NewFile( 0, (char*)"TestInt");
       assert (iStat >= 0);
 
-      dREC03RECNUMTYP index = 0;
+      dREC03RECNUMTYP dRecNo = 0;
       for(int j = 1; j <= 100; j++)
-        intStash.WritNew(0,&j,&index);
+        intStash.WritNew(0,&j,&dRecNo);
       iStat = intStash.SetStoreFile(0);
     }
 // Open file TestInt.rec and read integer values, then delete file
@@ -128,6 +136,7 @@ int main() {
       sstRec03CargoKeyCls oTestCargo2Key;
 
       // Create two cargo packet objects
+      // This records should be stored beside user data
       sstRec03TestRec1Cls oTestRec1;
       sstRec03TestRec2Cls oTestRec2;
 
@@ -251,66 +260,67 @@ int main() {
 
     {
 
-      //--- Testing binary tree sorting --------------------------------------------
-      sstRec03TreeKeyCls oTri1;  // new tree identification object for sorting chars
-      sstRec03TreeKeyCls oTri2;  // new tree identification object for sorting ints
-      dREC03RECNUMTYP dSatzNr = 0;
-      sstRec03TestRec1Cls oTstRec11;
-      sstRec03TestRec1Cls oTstRec12;
-      sstRec03Cls oTestDss(sizeof(oTstRec11));  // new sstRecMem for TstRec11
-
-      // Datensatz-Verwaltung anlegen / öffnen.
-      // iStat = oTestDss.Open( 1, sizeof(oTstRec11), 10, (char*)"Test");
+    //--- Testing binary tree sorting --------------------------------------------
+    sstRec03TreeKeyCls oTriKey_CC;  // new tree identification object for sorting chars
+    sstRec03TreeKeyCls oTriKey_I2;  // new tree identification object for sorting ints
+    dREC03RECNUMTYP dRecNo = 0;
+    sstRec03TestRec1Cls oTstRec11;
+    sstRec03TestRec1Cls oTstRec12;
+    sstRec03Cls oTestRecMem1(sizeof(oTstRec11));  // new sstRecMem Table for TstRec11 records
 
       // Initialize new Sorttree for RecMem
       // Sorting value should be cVal
-      iStat = oTestDss.TreIni ( 0, &oTstRec11, &oTstRec11.cVal, sizeof(oTstRec11.cVal), stDs2_CC, &oTri1);
+      iStat = oTestRecMem1.TreIni ( 0, &oTstRec11, &oTstRec11.cVal, sizeof(oTstRec11.cVal), sstRecTyp_CC, &oTriKey_CC);
       assert(iStat == 0);
-      iStat = oTestDss.TreIni ( 0, &oTstRec11, &oTstRec11.iValue, sizeof(oTstRec11.iValue), stDs2_I2, &oTri2);
+      // Sorting value should be iValue
+      iStat = oTestRecMem1.TreIni ( 0, &oTstRec11, &oTstRec11.iValue, sizeof(oTstRec11.iValue), sstRecTyp_I2, &oTriKey_I2);
       assert(iStat == 0);
 
-      // insert test record (double,char)
+      // insert test record 1 (double,char)
       iStat = oTstRec11.SetAllValues(20,(char*)"dscr");
-      iStat = oTestDss.WritNew( 0, &oTstRec11, &dSatzNr);
+      iStat = oTestRecMem1.WritNew( 0, &oTstRec11, &dRecNo);
 
-      // insert test record (double,char)
+      // insert test record 2 (double,char)
       iStat = oTstRec11.SetAllValues(30,(char*)"cscr");
-      iStat = oTestDss.WritNew( 0, &oTstRec11, &dSatzNr);
+      iStat = oTestRecMem1.WritNew( 0, &oTstRec11, &dRecNo);
 
-      // insert test record (double,char)
+      // insert test record 3 (double,char)
       iStat = oTstRec11.SetAllValues(10,(char*)"escr");
-      iStat = oTestDss.WritNew( 0, &oTstRec11, &dSatzNr);
+      iStat = oTestRecMem1.WritNew( 0, &oTstRec11, &dRecNo);
 
-      // insert test record (double,char)
+      // insert test record 4 (double,char)
       iStat = oTstRec11.SetAllValues(40,(char*)"ascr");
-      iStat = oTestDss.WritNew( 0, &oTstRec11, &dSatzNr);
+      iStat = oTestRecMem1.WritNew( 0, &oTstRec11, &dRecNo);
 
-      // Full rebuild of sorting tree oTri1 in RecMem
-      iStat = oTestDss.TreBld ( 0, &oTri1);
+      // Full rebuild of sorting tree oTriKey_CC (chars) in RecMem
+      iStat = oTestRecMem1.TreBld ( 0, &oTriKey_CC);
       assert(iStat == 0);
 
-      iStat = oTestDss.TreBld ( 0, &oTri2);
+      // Full rebuild of sorting tree oTriKey_I2 (ints) in RecMem
+      iStat = oTestRecMem1.TreBld ( 0, &oTriKey_I2);
       assert(iStat == 0);
 
-      // Tree 2: 3,1,2,4
+      // Tree 1: Sort order 4,2,1,3
+      // Tree 2: Sort order 3,1,2,4
 
       // Traverse throuh given tree 1 from small to great
       // Return next greater/equal record and number for given record
-      // Start with record 0
-      dREC03RECNUMTYP SNr1 = 0;
-      iStat = oTestDss.TreReadNxtGE ( 0, &oTri1, &oTstRec12, &SNr1);
+      // Start with record 0: return record with smallest value
+
+      dREC03RECNUMTYP dRecNo1 = 0;
+      iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_CC, &oTstRec12, &dRecNo1);
       iStat = strncmp((char*)"ascr", oTstRec12.cVal, 5);
       if(iStat != 0) assert(0);
 
-      iStat = oTestDss.TreReadNxtGE ( 0, &oTri1, &oTstRec12, &SNr1);
+      iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_CC, &oTstRec12, &dRecNo1);
       iStat = strncmp((char*)"cscr", oTstRec12.cVal, 5);
       if(iStat != 0) assert(0);
 
-      iStat = oTestDss.TreReadNxtGE ( 0, &oTri1, &oTstRec12, &SNr1);
+      iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_CC, &oTstRec12, &dRecNo1);
       iStat = strncmp((char*)"dscr", oTstRec12.cVal, 5);
       if(iStat != 0) assert(0);
 
-      iStat = oTestDss.TreReadNxtGE ( 0, &oTri1, &oTstRec12, &SNr1);
+      iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_CC, &oTstRec12, &dRecNo1);
       iStat = strncmp((char*)"escr", oTstRec12.cVal, 5);
       if(iStat != 0) assert(0);
 
@@ -318,72 +328,149 @@ int main() {
       // Return next greater/equal record number for given record
       // Start with record 0
 
-      SNr1 = 0;
-      // return record number for smallest value for tree oTri1
-      iStat = oTestDss.TreSeaFrst ( 0, &oTri1, &SNr1);
+      dRecNo1 = 0;
+      // return record number for smallest value for tree oTriKey_CC
+      iStat = oTestRecMem1.TreSeaFrst ( 0, &oTriKey_CC, &dRecNo1);
 
       // Result should be 4 for value = ascr
-      assert(SNr1==4);
+      assert(dRecNo1==4);
 
-      dREC03RECNUMTYP SNr2 = 0;
+      dREC03RECNUMTYP sRecNo2 = 0;
 
       // Return record number for next greater value
-      iStat = oTestDss.TreSeaNxtGT ( 0, &oTri1, SNr1, &SNr2);
-      SNr1 = SNr2;
-      assert(SNr1==2);
-      iStat = oTestDss.TreSeaNxtGT ( 0, &oTri1, SNr1, &SNr2);
-      SNr1 = SNr2;
-      assert(SNr1==1);
-      iStat = oTestDss.TreSeaNxtGT ( 0, &oTri1, SNr1, &SNr2);
-      SNr1 = SNr2;
-      assert(SNr1==3);
-      iStat = oTestDss.TreSeaNxtGT ( 0, &oTri1, SNr1, &SNr2);
-      assert(SNr2==0);
+      iStat = oTestRecMem1.TreSeaNxtGT ( 0, &oTriKey_CC, dRecNo1, &sRecNo2);
+      dRecNo1 = sRecNo2;
+      assert(dRecNo1==2);
+      iStat = oTestRecMem1.TreSeaNxtGT ( 0, &oTriKey_CC, dRecNo1, &sRecNo2);
+      dRecNo1 = sRecNo2;
+      assert(dRecNo1==1);
+      iStat = oTestRecMem1.TreSeaNxtGT ( 0, &oTriKey_CC, dRecNo1, &sRecNo2);
+      dRecNo1 = sRecNo2;
+      assert(dRecNo1==3);
+      iStat = oTestRecMem1.TreSeaNxtGT ( 0, &oTriKey_CC, dRecNo1, &sRecNo2);
+      assert(sRecNo2==0);
 
       // Traverse throuh given tree 2 from small to great
       // Tree 2: 3,1,2,4
       // Return next greater/equal record and number for given record
       // Start with record 0
-      SNr1 = 0;
-      iStat = oTestDss.TreReadNxtGE ( 0, &oTri2, &oTstRec12, &SNr1);
+      dRecNo1 = 0;
+      iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_I2, &oTstRec12, &dRecNo1);
       assert(oTstRec12.iValue == 10);
-      assert(SNr1==3);
+      assert(dRecNo1==3);
 
-      iStat = oTestDss.TreReadNxtGE ( 0, &oTri2, &oTstRec12, &SNr1);
+      iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_I2, &oTstRec12, &dRecNo1);
       assert(oTstRec12.iValue == 20);
-      assert(SNr1==1);
+      assert(dRecNo1==1);
 
-      iStat = oTestDss.TreReadNxtGE ( 0, &oTri2, &oTstRec12, &SNr1);
+      iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_I2, &oTstRec12, &dRecNo1);
       assert(oTstRec12.iValue == 30);
-      assert(SNr1==2);
+      assert(dRecNo1==2);
 
-      iStat = oTestDss.TreReadNxtGE ( 0, &oTri2, &oTstRec12, &SNr1);
+      iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_I2, &oTstRec12, &dRecNo1);
       assert(oTstRec12.iValue == 40);
-      assert(SNr1==4);
+      assert(dRecNo1==4);
 
-      SNr1 = 0;
-      // return record number for smallest value for tree oTri1
-      iStat = oTestDss.TreSeaFrst ( 0, &oTri2, &SNr1);
+      dRecNo1 = 0;
+      // return record number for smallest value for tree oTriKey_CC
+      iStat = oTestRecMem1.TreSeaFrst ( 0, &oTriKey_I2, &dRecNo1);
 
       // Result should be 4 for value = ascr
-      assert(SNr1==3);
+      assert(dRecNo1==3);
 
-      SNr2 = 0;
+      sRecNo2 = 0;
 
       // Return record number for next greater value
-      iStat = oTestDss.TreSeaNxtGT ( 0, &oTri2, SNr1, &SNr2);
-      SNr1 = SNr2;
-      assert(SNr1==1);
-      iStat = oTestDss.TreSeaNxtGT ( 0, &oTri2, SNr1, &SNr2);
-      SNr1 = SNr2;
-      assert(SNr1==2);
-      iStat = oTestDss.TreSeaNxtGT ( 0, &oTri2, SNr1, &SNr2);
-      SNr1 = SNr2;
-      assert(SNr1==4);
-      iStat = oTestDss.TreSeaNxtGT ( 0, &oTri2, SNr1, &SNr2);
-      assert(SNr2==0);
+      iStat = oTestRecMem1.TreSeaNxtGT ( 0, &oTriKey_I2, dRecNo1, &sRecNo2);
+      dRecNo1 = sRecNo2;
+      assert(dRecNo1==1);
+      iStat = oTestRecMem1.TreSeaNxtGT ( 0, &oTriKey_I2, dRecNo1, &sRecNo2);
+      dRecNo1 = sRecNo2;
+      assert(dRecNo1==2);
+      iStat = oTestRecMem1.TreSeaNxtGT ( 0, &oTriKey_I2, dRecNo1, &sRecNo2);
+      dRecNo1 = sRecNo2;
+      assert(dRecNo1==4);
+      iStat = oTestRecMem1.TreSeaNxtGT ( 0, &oTriKey_I2, dRecNo1, &sRecNo2);
+      assert(sRecNo2==0);
 
     }
+  {
+    //--- Testing binary tree sorting (build tree on the fly) --------------------
+
+    sstRec03TreeKeyCls oTriKey_CC;  // new tree identification object for sorting chars
+    sstRec03TreeKeyCls oTriKey_I2;  // new tree identification object for sorting ints
+    dREC03RECNUMTYP dRecNo = 0;
+    sstRec03TestRec1Cls oTstRec11;
+    sstRec03TestRec1Cls oTstRec12;
+    sstRec03Cls oTestRecMem1(sizeof(oTstRec11));  // new sstRecMem Table for TstRec11 records
+
+    // Initialize new Sorttree for RecMem
+    // Sorting value should be cVal
+    iStat = oTestRecMem1.TreIni ( 0, &oTstRec11, &oTstRec11.cVal, sizeof(oTstRec11.cVal), sstRecTyp_CC, &oTriKey_CC);
+    assert(iStat == 0);
+    // Sorting value should be iValue
+    iStat = oTestRecMem1.TreIni ( 0, &oTstRec11, &oTstRec11.iValue, sizeof(oTstRec11.iValue), sstRecTyp_I2, &oTriKey_I2);
+    assert(iStat == 0);
+
+    // insert test record (double,char) and update trees
+    iStat = oTstRec11.SetAllValues(20,(char*)"dscr");
+    iStat = oTestRecMem1.TreWriteNew ( 0, &oTstRec11, &dRecNo);
+
+    // insert test record (double,char) and update trees
+    iStat = oTstRec11.SetAllValues(30,(char*)"cscr");
+    iStat = oTestRecMem1.TreWriteNew ( 0, &oTstRec11, &dRecNo);
+
+    // insert test record (double,char) and update trees
+    iStat = oTstRec11.SetAllValues(10,(char*)"escr");
+    iStat = oTestRecMem1.TreWriteNew ( 0, &oTstRec11, &dRecNo);
+
+    // insert test record (double,char) and update trees
+    iStat = oTstRec11.SetAllValues(40,(char*)"ascr");
+    iStat = oTestRecMem1.TreWriteNew ( 0, &oTstRec11, &dRecNo);
+
+    // Traverse throuh given tree 1 from small to great
+    // Return next greater/equal record and number for given record
+    // Start with record 0
+
+    dREC03RECNUMTYP dRecNo1 = 0;
+    iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_CC, &oTstRec12, &dRecNo1);
+    iStat = strncmp((char*)"ascr", oTstRec12.cVal, 5);
+    assert(iStat == 0);
+
+    iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_CC, &oTstRec12, &dRecNo1);
+    iStat = strncmp((char*)"cscr", oTstRec12.cVal, 5);
+    assert(iStat == 0);
+
+    iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_CC, &oTstRec12, &dRecNo1);
+    iStat = strncmp((char*)"dscr", oTstRec12.cVal, 5);
+    assert(iStat == 0);
+
+    iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_CC, &oTstRec12, &dRecNo1);
+    iStat = strncmp((char*)"escr", oTstRec12.cVal, 5);
+    assert(iStat == 0);
+
+    // Traverse throuh given tree 2 from small to great
+    // Tree 2: 3,1,2,4
+    // Return next greater/equal record and number for given record
+    // Start with record 0
+
+    dRecNo1 = 0;
+    iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_I2, &oTstRec12, &dRecNo1);
+    assert(oTstRec12.iValue == 10);
+    assert(dRecNo1==3);
+
+    iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_I2, &oTstRec12, &dRecNo1);
+    assert(oTstRec12.iValue == 20);
+    assert(dRecNo1==1);
+
+    iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_I2, &oTstRec12, &dRecNo1);
+    assert(oTstRec12.iValue == 30);
+    assert(dRecNo1==2);
+
+    iStat = oTestRecMem1.TreReadNxtGE ( 0, &oTriKey_I2, &oTstRec12, &dRecNo1);
+    assert(oTstRec12.iValue == 40);
+    assert(dRecNo1==4);
+  }
   return 0;
 }
 //=============================================================================

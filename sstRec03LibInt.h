@@ -510,12 +510,12 @@ class sstRec03CargoKeyInternCls
 * @date 27.10.15
 */
 // ----------------------------------------------------------------------------
-class sstRec03TreeCls
+class sstRec03TreeNodeCls
 {
   public:
-    sstRec03TreeCls();
-    dREC03RECNUMTYP Links_LT;   /**< left branch smaller */
-    dREC03RECNUMTYP Rechts_GE;  /**< right branch greater/equal */
+    sstRec03TreeNodeCls();
+    dREC03RECNUMTYP dLeft_LT;   /**< left branch smaller */
+    dREC03RECNUMTYP dRight_GE;  /**< right branch greater/equal */
   private:  // Private functions
 };
 //==============================================================================
@@ -533,17 +533,17 @@ class sstRec03TreeCls
 * @date 27.10.15
 */
 // ----------------------------------------------------------------------------
-class sstRec03TreeKeyInternCls
+class sstRec03TreeHeaderCls
 {
 public:
-  sstRec03TreeKeyInternCls();
-  // ~sstRec03TreeKeyInternCls();
-  dREC03RECNUMTYP    Root;              /**< Base record of actual tree */
-  int                AdrOfs;            /**< Offset of sort value from start of full record */
-  int                Offset;            /**< Offset of sort value from start of user record */
-  int                Size;              /**< Size of sort value */
-  sstRec03CompTyp_enum   Typ;               /**< Type of sort value */
-  sstRec03CargoKeyInternCls *oDataKey;  /**< Data key object */
+  sstRec03TreeHeaderCls();
+  // ~sstRec03TreeHeaderCls();
+  dREC03RECNUMTYP    dRoot;             /**< Base record of actual tree */
+  int                iAdrOfs;           /**< Offset of sort value from start of full record */
+  int                iOffset;           /**< Offset of sort value from start of user record */
+  int                iSize;             /**< Size of sort value */
+  sstRec03CompTyp_enum   eTyp;               /**< Type of sort value */
+  sstRec03CargoKeyInternCls *poDataKey;  /**< Cargo key object */
 private:  // Private functions
 };
 //==============================================================================
@@ -952,8 +952,8 @@ class sstRec03InternCls
                   sstRec03TreeKeyCls   *oTre);
      //==============================================================================
      /**
-     * @brief // Insert new record ii in tree otre with root record  <BR>
-     * iStat = oRecMem.DSiTreIns2(iKey, *oTre, dRecNoOld, dRecNoNew, *vRecAdr)
+     * @brief // Insert new record in tree with root record  <BR>
+     * iStat = oRecMem.DSiTreInsert (iKey, *oTre, dRecNoOld, dRecNoNew, *vRecAdr)
      *
      * @param iKey      [in] For the moment 0
      * @param oTre      [in] Tree object
@@ -967,11 +967,11 @@ class sstRec03InternCls
      * @retval   < 0: Unspecified Error
      */
      // ----------------------------------------------------------------------------
-     dREC03RECNUMTYP DSiTreIns2 ( int            iKey,
-                               sstRec03TreeKeyCls    *oTre,
-                               dREC03RECNUMTYP   dRecNoOld,
-                               dREC03RECNUMTYP   dRecNoNew,
-                               void             *vRecAdr);
+     dREC03RECNUMTYP DSiTreInsert ( int                    iKey,
+                                    sstRec03TreeHeaderCls *oTre,
+                                    dREC03RECNUMTYP        dRecNoOld,
+                                    dREC03RECNUMTYP        dRecNoNew,
+                                    void                  *vRecAdr);
      //=============================================================================
      /**
      * @brief Get next greater or equal
@@ -1110,7 +1110,7 @@ class sstRec03InternCls
                         sstRec03TreeKeyCls      *poTre,
                         dREC03RECNUMTYP     dRecNo,
                         void               *vRecAdr,
-                        sstRec03TreeCls    *poTreData);
+                        sstRec03TreeNodeCls    *poTreData);
      //==============================================================================
      /**
      * @brief Write Tree Data into vector and write vector into RecMem
@@ -1133,7 +1133,7 @@ class sstRec03InternCls
                         sstRec03TreeKeyCls  *oTre,
                         dREC03RECNUMTYP    SNr,
                         void           *DSatz,
-                        sstRec03TreeCls    *TreDat);
+                        sstRec03TreeNodeCls    *TreDat);
      //=============================================================================
      /**
      * @brief // Return adress of tree data in record vActDs <BR>
@@ -1153,7 +1153,7 @@ class sstRec03InternCls
      int DSiTreAdrGet ( int              iKey,
                         sstRec03TreeKeyCls   *oTre,
                         void            *vActRec,
-                        sstRec03TreeCls *poTreeData);
+                        sstRec03TreeNodeCls *poTreeData);
      //==============================================================================
      /**
      * @brief Write Tree Data into vector
@@ -1170,7 +1170,25 @@ class sstRec03InternCls
      // ----------------------------------------------------------------------------
      int DSiTreAdrSet ( int              iKey,
                         sstRec03TreeKeyCls   *oTre,
-                        sstRec03TreeCls     *oTreData);
+                        sstRec03TreeNodeCls     *oTreData);
+     //=============================================================================
+     /**
+     * @brief // Write new record into record memory and update all trees  <BR>
+     * iStat = oRecMem.TreWriteNew ( iKey,  *vRecAdr, *dRecNo);
+     *
+     * @param iKey     [in]  For the moment 0
+     * @param vRecAdr  [in]  Adress of new record to be written
+     * @param dRecNo   [out] New Record written at number
+     *
+     * @return Fehlerstatus
+     *
+     * @retval   =0 = OK
+     * @retval   <0 = Unspecified Error
+     */
+     //-----------------------------------------------------------------------------
+     int TreWriteNew ( int              iKey,
+                       void            *vRecAdr,
+                       dREC03RECNUMTYP *dRecNo);
      //==============================================================================
 
 
@@ -1188,7 +1206,6 @@ class sstRec03InternCls
      */
      // ----------------------------------------------------------------------------
     void inflate(int increase);
-    //==============================================================================
     //=============================================================================
     void CalcSetPos ( void   *BasPtr,
                       void  **IdxPtr,
@@ -1206,8 +1223,8 @@ class sstRec03InternCls
     sstRec03VectSysCls *poVector;  /**< Intern memory space for vector            */
     sstRec03CargoKeyInternCls *poRecMemUsrKey;   /**< Identification Key for Header Cargo */
     sstRec03CargoKeyInternCls *poRecMemSysKey;   /**< Identification Kea for User Data Cargo */
-    sstRec03TreeKeyInternCls   *Tre;        /**< Adresse aller BaumverwaltungsDatensätze im Heap    */
-    int           iTriAnz;    /**< Anzahl Baumverwaltungs-Datensätze                  */
+    sstRec03TreeHeaderCls     *poTre;            /**< Array with all tree header data    */
+    int           iTriAnz;    /**< Number of all defined trees            */
 };
 //==============================================================================
 // iStat = Test_VectorSys_Stack ( iKey);

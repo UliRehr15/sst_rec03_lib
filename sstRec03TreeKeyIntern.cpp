@@ -24,14 +24,14 @@
 #include "sstRec03LibInt.h"
 
 //==============================================================================
-sstRec03TreeKeyInternCls::sstRec03TreeKeyInternCls()
+sstRec03TreeHeaderCls::sstRec03TreeHeaderCls()
 {
-  Root = 0;
-  AdrOfs = 0;
-  Offset = 0;
-  Size = 0;
-  Typ = stDs2_No;
+  dRoot = 0;
+  iAdrOfs = 0;
+  iOffset = 0;
+  iSize = 0;
+  eTyp = sstRecTyp_No;
 
-  this->oDataKey = new (sstRec03CargoKeyInternCls );
+  this->poDataKey = new (sstRec03CargoKeyInternCls );
 }
 //==============================================================================

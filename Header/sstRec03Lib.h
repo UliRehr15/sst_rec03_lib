@@ -71,14 +71,14 @@ class sstRec03CargoKeyInternCls;
 */
 // ----------------------------------------------------------------------------
 enum _sstRec03CompTyp_enum
-{ stDs2_No,     /**< No Sorttyp              */
-  stDs2_I2,     /**< Signed Short Integer    */
-  stDs2_I4,     /**< Signed Long Integer     */
-  stDs2_UI,     /**< Unsigned Short Integer  */
-  stDs2_UL,     /**< Unsigned Long Integer   */
-  stDs2_R4,     /**< Real                    */
-  stDs2_D8,     /**< Double                  */
-  stDs2_CC      /**< Character String        */
+{ sstRecTyp_No,     /**< No Sorttyp              */
+  sstRecTyp_I2,     /**< Signed Short Integer    */
+  sstRecTyp_I4,     /**< Signed Long Integer     */
+  sstRecTyp_UI,     /**< Unsigned Short Integer  */
+  sstRecTyp_UL,     /**< Unsigned Long Integer   */
+  sstRecTyp_R4,     /**< Real                    */
+  sstRecTyp_D8,     /**< Double                  */
+  sstRecTyp_CC      /**< Character String        */
      };
 typedef enum _sstRec03CompTyp_enum sstRec03CompTyp_enum;
 //==============================================================================
@@ -470,9 +470,9 @@ public:
   * iStat = iRecMem.TreReadNxtGE ( iKey, *poTre, *vRecAdr, *dRecNo);
   *
   * @param iKey     [in]     For the moment 0
-  * @param poTre    [in out] Tree system
-  * @param vRecAdr  [in]     actual dataset
-  * @param dRecNo   [out]    Return next greater or equal
+  * @param poTre    [in]     Tree key
+  * @param vRecAdr  [in out] return record at given adress
+  * @param dRecNo   [in out] Return next greater or equal
   *
   * @return Errorstate
   *
@@ -523,6 +523,26 @@ public:
                     sstRec03TreeKeyCls     *poTre,
                     dREC03RECNUMTYP    dRecNo1,
                     dREC03RECNUMTYP   *dRecNo2);
+  //=============================================================================
+  /**
+  * @brief // Write new record into record memory and update all trees  <BR>
+  * iStat = oRecMem.TreWriteNew ( iKey,  *vRecAdr, *dRecNo);
+  *
+  * @param iKey     [in]  Vorerst immer 0
+  * @param vRecAdr  [in]  Adresse des Datensatzes
+  * @param dRecNo   [out] new record written at number
+  *
+  * @return Fehlerstatus
+  *
+  * @retval   =0 = OK
+  * @retval   <0 = allgemeiner Fehler
+  */
+  //-----------------------------------------------------------------------------
+  int TreWriteNew ( int              iKey,
+                  void            *vRecAdr,
+                  dREC03RECNUMTYP *dRecNo);
+
+  //=============================================================================
 
 private:
   sstRec03InternCls *poRec01Intern;   /**< Pointer to intern object */
