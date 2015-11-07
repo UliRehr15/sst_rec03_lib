@@ -505,8 +505,8 @@ public:
 
   //=============================================================================
   /**
-  * @brief // Seach next greater  <BR>
-  * iStat = oRecMem.TreSeaNxtGT ( iKey, *poTre, dRecNo1, *dRecNo2);
+  * @brief // Seach next greater / equal  <BR>
+  * iStat = oRecMem.TreSeaNxtGE ( iKey, *poTre, dRecNo1, *dRecNo2);
   *
   * @param iKey    [in]     For the moment 0
   * @param poTre   [in out] Tree system
@@ -519,7 +519,7 @@ public:
   * @retval   < 0: Unspecified Error
   */
   // ----------------------------------------------------------------------------
-  int TreSeaNxtGT ( int                iKey,
+  int TreSeaNxtGE ( int                iKey,
                     sstRec03TreeKeyCls     *poTre,
                     dREC03RECNUMTYP    dRecNo1,
                     dREC03RECNUMTYP   *dRecNo2);
@@ -539,9 +539,29 @@ public:
   */
   //-----------------------------------------------------------------------------
   int TreWriteNew ( int              iKey,
-                  void            *vRecAdr,
-                  dREC03RECNUMTYP *dRecNo);
-
+                    void            *vRecAdr,
+                    dREC03RECNUMTYP *dRecNo);
+  //==============================================================================
+  /**
+  * @brief // Delete next record with given value from tree   <BR>
+  * iStat = oRecMem.TreDel ( iKey, *oTreKey, *vSearchValue, *dRecNo);
+  *
+  * @param iKey         [in] For the moment 0
+  * @param oTreKey      [in] Tree object
+  * @param vSearchValue [in] Seach Value
+  * @param dRecNo       [out] Return deleted record number
+  *
+  * @return Errorstate
+  *
+  * @retval   = 1: Record with value found and deleted from tree(s)
+  * @retval   = 0: Value not found in RecMem
+  * @retval   < 0: Unspecified Error
+  */
+  // ----------------------------------------------------------------------------
+  int TreDel ( int                   iKey,
+               sstRec03TreeKeyCls   *oTreKey,
+               void                 *vSearchValue,
+               dREC03RECNUMTYP      *dRecNo);
   //=============================================================================
 
 private:

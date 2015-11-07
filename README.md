@@ -19,4 +19,6 @@ Oktober 2015, Hanover, Germany, Uli Rehr
 Versions <BR>
 20151030: 3.0 Fork from sstRec02 <BR>
 20151031: 3.1 Add Tree sorting system. Define one or more sort trees. <BR>
+              Traverse thru trees from small to great. Full rebuild of sort tree. <BR>
 20151031: 3.2 Update Tree(s) "on the fly" while writing new records. <BR>
+20151107: 3.3 Delete records from tree. <BR>

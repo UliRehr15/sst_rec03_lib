@@ -539,10 +539,10 @@ public:
   sstRec03TreeHeaderCls();
   // ~sstRec03TreeHeaderCls();
   dREC03RECNUMTYP    dRoot;             /**< Base record of actual tree */
-  int                iAdrOfs;           /**< Offset of sort value from start of full record */
+  int                iAdrOfs;           /**< Offset of Tree Node data from start of full record */
   int                iOffset;           /**< Offset of sort value from start of user record */
   int                iSize;             /**< Size of sort value */
-  sstRec03CompTyp_enum   eTyp;               /**< Type of sort value */
+  sstRec03CompTyp_enum   eTyp;          /**< Type of sort value */
   sstRec03CargoKeyInternCls *poDataKey;  /**< Cargo key object */
 private:  // Private functions
 };
@@ -1023,10 +1023,70 @@ class sstRec03InternCls
      * @retval   < 0: Unspecified Error
      */
      // ----------------------------------------------------------------------------
-     int TreSeaNxtGT ( int             iKey,
+     int TreSeaNxtGE ( int             iKey,
                        sstRec03TreeKeyCls  *oTre,
                        dREC03RECNUMTYP    SNr1,
                        dREC03RECNUMTYP   *SNr2);
+     //==============================================================================
+     /**
+     * @brief // Is true, if Compare Value AdrOld is equal than AdrNew  <BR>
+     * iStat = oRecMem.DSiCompIsEqual ( iKey, *oTre, *vAdr1, *vCompAdr);
+     *
+     * @param iKey     [in] For the moment 0
+     * @param oTre     [in] For the moment 0
+     * @param vAdr1    [in] For the moment 0
+     * @param vCompAdr [in] For the moment 0
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiCompIsEqual ( int                     iKey,
+                         sstRec03TreeHeaderCls  *oTre,
+                         void                   *vAdr1,
+                         void                   *vCompAdr);
+     //==============================================================================
+     /**
+     * @brief // Is true, if Compare Value AdrOld is equal than AdrNew  <BR>
+     * iStat = oRecMem.DSiCompNotEqual ( iKey, *oTre, *vAdr1, *vCompAdr);
+     *
+     * @param iKey     [in] For the moment 0
+     * @param oTre     [in] For the moment 0
+     * @param vAdr1    [in] For the moment 0
+     * @param vCompAdr [in] For the moment 0
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiCompNotEqual ( int                     iKey,
+                           sstRec03TreeHeaderCls  *oTre,
+                           void                   *vAdr1,
+                           void                   *vCompAdr);
+     //==============================================================================
+     /**
+     * @brief // Is true, if Compare Value AdrOld is equal than AdrNew  <BR>
+     * iStat = oRecMem.DSiCompSmaller ( iKey, *oTre, *vAdr1, *vCompAdr);
+     *
+     * @param iKey     [in] For the moment 0
+     * @param oTre     [in] For the moment 0
+     * @param vAdr1    [in] For the moment 0
+     * @param vCompAdr [in] For the moment 0
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiCompSmaller ( int                     iKey,
+                          sstRec03TreeHeaderCls  *oTre,
+                          void                   *vAdr1,
+                          void                   *vCompAdr);
      //==============================================================================
      /**
      * @brief // Is true, if Compare Value AdrOld is greater than AdrNew  <BR>
@@ -1043,10 +1103,95 @@ class sstRec03InternCls
      * @retval   < 0: Unspecified Error
      */
      // ----------------------------------------------------------------------------
-     int DSiVarCompGT (int               iKey,
+     int DSiVarCompGT (int                   iKey,
                        sstRec03CompTyp_enum *eType,
-                       void             *vAdrOld,
-                       void             *vAdrNew);
+                       void                 *vAdrOld,
+                       void                 *vAdrNew);
+     //==============================================================================
+     /**
+     * @brief // Is true, if Compare Value AdrOld is greater/equal than AdrNew  <BR>
+     * iStat = oRecMem.DSiVarCompGE ( iKey, eType, vAdrOld, vAdrNew);
+     *
+     * @param iKey    [in] For the moment 0
+     * @param eType   [in] For the moment 0
+     * @param vAdrOld [in] For the moment 0
+     * @param vAdrNew [in] For the moment 0
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiVarCompGE (int iKey, sstRec03CompTyp_enum *eType, void *vAdrOld, void *vAdrNew);
+     //==============================================================================
+     /**
+     * @brief // Is true, if Compare Value AdrOld is smaller than AdrNew  <BR>
+     * iStat = oRecMem.DSiVarCompLT ( iKey, eType, vAdrOld, vAdrNew);
+     *
+     * @param iKey    [in] For the moment 0
+     * @param eType   [in] For the moment 0
+     * @param vAdrOld [in] For the moment 0
+     * @param vAdrNew [in] For the moment 0
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiVarCompLT (int iKey, sstRec03CompTyp_enum *eType, void *vAdrOld, void *vAdrNew);
+     //==============================================================================
+     /**
+     * @brief // Is true, if Compare Value AdrOld is smaller/equal than AdrNew  <BR>
+     * iStat = oRecMem.DSiVarCompLE ( iKey, eType, vAdrOld, vAdrNew);
+     *
+     * @param iKey    [in] For the moment 0
+     * @param eType   [in] For the moment 0
+     * @param vAdrOld [in] For the moment 0
+     * @param vAdrNew [in] For the moment 0
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiVarCompLE (int iKey, sstRec03CompTyp_enum *eType, void *vAdrOld, void *vAdrNew);
+     //==============================================================================
+     /**
+     * @brief // Is true, if Compare Value AdrOld is equal AdrNew  <BR>
+     * iStat = oRecMem.DSiVarCompEQ ( iKey, eType, vAdrOld, vAdrNew)
+     *
+     * @param iKey    [in] For the moment 0
+     * @param eType   [in] For the moment 0
+     * @param vAdrOld [in] For the moment 0
+     * @param vAdrNew [in] For the moment 0
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiVarCompEQ (int iKey, sstRec03CompTyp_enum *eType, void *vAdrOld, void *vAdrNew);
+     //==============================================================================
+     /**
+     * @brief // Is true, if Compare Value AdrOld is not equal AdrNew  <BR>
+     * iStat = oRecMem.DSiVarCompNE ( iKey, eType, vAdrOld, vAdrNew)
+     *
+     * @param iKey    [in] For the moment 0
+     * @param eType   [in] For the moment 0
+     * @param vAdrOld [in] For the moment 0
+     * @param vAdrNew [in] For the moment 0
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiVarCompNE (int iKey, sstRec03CompTyp_enum *eType, void *vAdrOld, void *vAdrNew);
      //==============================================================================
      /**
      * @brief // Set type and adress for compare value in ValSet <BR>
@@ -1063,10 +1208,10 @@ class sstRec03InternCls
      * @retval   < 0: Unspecified Error
      */
      // ----------------------------------------------------------------------------
-     int DSiCompValue (int                 iKey,
-                       void               *vValueAdr,
-                       sstRec03CompTyp_enum   *eCompTyp,
-                       sstRec03CompValueCls       *poCompValue);
+     int DSiCompValue (int                    iKey,
+                       void                  *vValueAdr,
+                       sstRec03CompTyp_enum  *eCompTyp,
+                       sstRec03CompValueCls  *poCompValue);
      //==============================================================================
      /**
      * @brief // In Tree oTre for Record 1 seach next greater Record 2 <BR>
@@ -1095,7 +1240,7 @@ class sstRec03InternCls
      * iStat = oRecMem.DSiTreDatGet(iKey,*poTre,dRecNo,*vRecAdr,*poTreData);
      *
      * @param iKey      [in] For the moment 0
-     * @param poTre     [in] Tree object
+     * @param poTreHead [in] Tree Header
      * @param dRecNo    [in] Record number
      * @param vRecAdr   [in] adress of temporary record memory
      * @param poTreData [out] Return Tree node data
@@ -1107,7 +1252,7 @@ class sstRec03InternCls
      */
      // ----------------------------------------------------------------------------
      int DSiTreDatGet ( int                 iKey,
-                        sstRec03TreeKeyCls      *poTre,
+                        sstRec03TreeHeaderCls      *poTreHead,
                         dREC03RECNUMTYP     dRecNo,
                         void               *vRecAdr,
                         sstRec03TreeNodeCls    *poTreData);
@@ -1117,8 +1262,8 @@ class sstRec03InternCls
      *
      * Was used by delete record functions
      *
-     * @param iKey   [in] For the moment 0
-     * @param oTre   [in]
+     * @param iKey       [in] For the moment 0
+     * @param oTreHead   [in] Actual Tree Header
      * @param SNr    [in]
      * @param DSatz  [in]
      * @param TreDat [in]
@@ -1130,19 +1275,19 @@ class sstRec03InternCls
      */
      //=============================================================================
      int DSiTreDatSet ( int             iKey,
-                        sstRec03TreeKeyCls  *oTre,
+                        sstRec03TreeHeaderCls  *oTreHead,
                         dREC03RECNUMTYP    SNr,
                         void           *DSatz,
                         sstRec03TreeNodeCls    *TreDat);
      //=============================================================================
      /**
      * @brief // Return adress of tree data in record vActDs <BR>
-     * iStat= oRecMem.DSiTreAdrGet(iKey,oTre,vActRec,poRecTreeData)
+     * iStat= oRecMem.DSiTreAdrGet( iKey, poTreHead, vActRec, poNodeData)
      *
-     * @param iKey       [in]  For the moment 0
-     * @param oTre       [in]  Tree object
-     * @param vActRec    [in]  Record data
-     * @param poTreeData [out] adress of tree data in record
+     * @param iKey        [in]  For the moment 0
+     * @param poTreHead   [in]  Tree Header
+     * @param vActRec     [in]  Record vector
+     * @param poNodeData  [out] adress of tree data in record
      *
      * @return Errorstate
      *
@@ -1150,17 +1295,19 @@ class sstRec03InternCls
      * @retval   < 0: Unspecified Error
      */
      // ----------------------------------------------------------------------------
-     int DSiTreAdrGet ( int              iKey,
-                        sstRec03TreeKeyCls   *oTre,
-                        void            *vActRec,
-                        sstRec03TreeNodeCls *poTreeData);
+     int DSiTreAdrGet ( int                      iKey,
+                        sstRec03TreeHeaderCls   *poTreHead,
+                        void                    *vActRec,
+                        sstRec03TreeNodeCls     *poNodeData);
      //==============================================================================
      /**
-     * @brief Write Tree Data into vector
+     * @brief // Write Tree Data into record vector
+     * iStat = oRecMem.DSiTreAdrSet ( iKey,  *poTreeHead, *vRecAdr, *poNodeData);
      *
-     * @param iKey     [in] For the moment 0
-     * @param oTre     [in] For the moment 0
-     * @param oTreData [in] For the moment 0
+     * @param iKey        [in] For the moment 0
+     * @param poTreeHead  [in] Tree Header
+     * @param vRecAdr     [in] Record vector
+     * @param poNodeData  [in] Tree Node Data
      *
      * @return Errorstate
      *
@@ -1168,9 +1315,10 @@ class sstRec03InternCls
      * @retval   < 0: Unspecified Error
      */
      // ----------------------------------------------------------------------------
-     int DSiTreAdrSet ( int              iKey,
-                        sstRec03TreeKeyCls   *oTre,
-                        sstRec03TreeNodeCls     *oTreData);
+     int DSiTreAdrSet ( int                      iKey,
+                        sstRec03TreeHeaderCls   *poTreeHead,
+                        void                    *vRecAdr,
+                        sstRec03TreeNodeCls     *poNodeData);
      //=============================================================================
      /**
      * @brief // Write new record into record memory and update all trees  <BR>
@@ -1189,6 +1337,27 @@ class sstRec03InternCls
      int TreWriteNew ( int              iKey,
                        void            *vRecAdr,
                        dREC03RECNUMTYP *dRecNo);
+     //==============================================================================
+     /**
+     * @brief // Delete record with value from tree   <BR>
+     * iStat = oRecMem.TreDel ( iKey, *oTre, *v, *dRecNo);
+     *
+     * @param iKey         [in] For the moment 0
+     * @param oTre         [in] Tree object
+     * @param vSearchValue [in] Seach Value
+     * @param dRecNo       [out] return deleted record number
+     *
+     * @return Errorstate
+     *
+     * @retval   = 1: Record with Value found and deleted from tree(s)
+     * @retval   = 0: Value not found
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int TreDel ( int                   iKey,
+                  sstRec03TreeKeyCls   *oTre,
+                  void                 *vSearchValue,
+                  dREC03RECNUMTYP      *dRecNo);
      //==============================================================================
 
 

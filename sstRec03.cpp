@@ -106,98 +106,83 @@ int sstRec03Cls::WrtCargo ( int              iKey,
                             void            *vCargoAdr)
 //------------------------------------------------------------------------------
 {
-    int iRet  = 0;
-    int iStat = 0;
-    //-----------------------------------------------------------------------------
-    if ( iKey != 0) return -1;
-
-    iStat = this->poRec01Intern->WrtCargo(iKey,oDataKey->poCargoKeyIntern,vCargoAdr);
-
-    // Fatal Errors goes to an assert
-    assert(iRet >= 0);
-
-    // Small Errors will given back
-    iRet = iStat;
-
-    return iRet;
+  return this->poRec01Intern->WrtCargo(iKey,oDataKey->poCargoKeyIntern,vCargoAdr);
 }
 //==============================================================================
 int sstRec03Cls::RedCargo ( int              iKey,
                             sstRec03CargoKeyCls *oDataKey,
                             void            *vCargoAdr)
+//-----------------------------------------------------------------------------
 {
-    int iRet  = 0;
-    int iStat = 0;
-  //-----------------------------------------------------------------------------
-    if ( iKey != 0) return -1;
-
-    iStat = this->poRec01Intern->RedCargo( iKey, oDataKey->poCargoKeyIntern, vCargoAdr);
-
-    assert(iRet >= 0);
-
-    // Small Errors will given back
-    iRet = iStat;
-
-    return iRet;
+    return this->poRec01Intern->RedCargo( iKey, oDataKey->poCargoKeyIntern, vCargoAdr);
 }
 //==============================================================================
 int sstRec03Cls::RecSetDeleted ( int               iKey,
                                  dREC03RECNUMTYP   dRecNo)
+//-----------------------------------------------------------------------------
 {
   return this->poRec01Intern->RecSetDeleted( iKey, dRecNo);
 }
 //==============================================================================
 int sstRec03Cls::RecSetMarked( int               iKey,
                                 dREC03RECNUMTYP   dRecNo)
+//-----------------------------------------------------------------------------
 {
   return this->poRec01Intern->RecSetMarked( iKey, dRecNo);
 }
 //==============================================================================
 int sstRec03Cls::RecSetUndeleted( int               iKey,
                                    dREC03RECNUMTYP   dRecNo)
+//-----------------------------------------------------------------------------
 {
   return this->poRec01Intern->RecSetUndeleted( iKey, dRecNo);
 }
 //==============================================================================
 int sstRec03Cls::RecSetUnmarked( int               iKey,
                                   dREC03RECNUMTYP   dRecNo)
+//-----------------------------------------------------------------------------
 {
   return this->poRec01Intern->RecSetUnmarked( iKey, dRecNo);
 }
 //==============================================================================
 bool sstRec03Cls::RecGetDeleteStatus( int               iKey,
                                       dREC03RECNUMTYP   dRecNo)
+//-----------------------------------------------------------------------------
 {
   return this->poRec01Intern->RecGetDeleteStatus( iKey, dRecNo);
 }
 //==============================================================================
 bool sstRec03Cls::RecGetMarkStatus( int               iKey,
                                     dREC03RECNUMTYP   dRecNo)
+//-----------------------------------------------------------------------------
 {
   return this->poRec01Intern->RecGetMarkStatus( iKey, dRecNo);
 }
 //==============================================================================
 int sstRec03Cls::TreIni ( int              iKey,
-             void            *DsAdr,
-             void            *CompAdr,
-             int              CompSiz,
-             sstRec03CompTyp_enum     CompTyp,
-             sstRec03TreeKeyCls   *oTre)
+                          void            *DsAdr,
+                          void            *CompAdr,
+                          int              CompSiz,
+                          sstRec03CompTyp_enum     CompTyp,
+                          sstRec03TreeKeyCls   *oTre)
+//-----------------------------------------------------------------------------
 {
   return this->poRec01Intern->TreIni(iKey,DsAdr,CompAdr,CompSiz,CompTyp,oTre);
 }
 //==============================================================================
-int sstRec03Cls::TreBld ( int              iKey,
-             sstRec03TreeKeyCls   *oTre)
+int sstRec03Cls::TreBld ( int                   iKey,
+                          sstRec03TreeKeyCls   *oTre)
+//-----------------------------------------------------------------------------
 {
   return this->poRec01Intern->TreBld(iKey,oTre);
 }
 
 //==============================================================================
-int sstRec03Cls::TreReadNxtGE (int              iKey,
-                 sstRec03TreeKeyCls   *oTre,
-                 void            *DSatz,
-                 dREC03RECNUMTYP   *SNr)
+int sstRec03Cls::TreReadNxtGE (int                   iKey,
+                               sstRec03TreeKeyCls   *oTre,
+                               void                 *DSatz,
+                               dREC03RECNUMTYP      *SNr)
+//-----------------------------------------------------------------------------
 {
   return this->poRec01Intern->TreReadNxtGE(iKey,oTre,DSatz,SNr);
 }
@@ -205,22 +190,34 @@ int sstRec03Cls::TreReadNxtGE (int              iKey,
 int sstRec03Cls::TreSeaFrst ( int            iKey,
                  sstRec03TreeKeyCls *oTre,
                  dREC03RECNUMTYP  *SNr)
+//-----------------------------------------------------------------------------
 {
   return this->poRec01Intern->TreSeaFrst(iKey,oTre,SNr);
 }
 //==============================================================================
-int sstRec03Cls::TreSeaNxtGT ( int             iKey,
+int sstRec03Cls::TreSeaNxtGE ( int             iKey,
                   sstRec03TreeKeyCls  *oTre,
                   dREC03RECNUMTYP    SNr1,
                   dREC03RECNUMTYP   *SNr2)
+//-----------------------------------------------------------------------------
 {
-  return this->poRec01Intern->TreSeaNxtGT(iKey,oTre,SNr1,SNr2);
+  return this->poRec01Intern->TreSeaNxtGE(iKey,oTre,SNr1,SNr2);
 }
 //==============================================================================
 int sstRec03Cls::TreWriteNew( int               iKey,
                             void            *vRecAdr,
                             dREC03RECNUMTYP *dRecNo)
+//-----------------------------------------------------------------------------
 {
   return this->poRec01Intern->TreWriteNew( iKey, vRecAdr, dRecNo);
+}
+//==============================================================================
+int sstRec03Cls::TreDel ( int                   iKey,
+                          sstRec03TreeKeyCls   *oTre,
+                          void                 *vSearchValue,
+                          dREC03RECNUMTYP      *dRecNo)
+//-----------------------------------------------------------------------------
+{
+  return this->poRec01Intern->TreDel ( iKey, oTre, vSearchValue, dRecNo);
 }
 //==============================================================================
