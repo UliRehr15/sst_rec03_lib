@@ -532,7 +532,7 @@ int sstRec03InternCls::TreIni ( int                iKey,
   oTre->iTriNo = this->iTriAnz;  // Set extern tree identification key
 
   // Old Size of Vector is offset to Tre Stru
-  this->poTre[this->iTriAnz-1].iAdrOfs = this->poVector->GetSize();
+  this->poTre[this->iTriAnz-1].iNodeOfs = this->poVector->GetSize();
 
   // find next Tree name for Cargo System: TR01, TR02 ...
   char cLocTreeCargoName[dREC03CARGONAMMAXLEN+1];
@@ -601,6 +601,46 @@ int sstRec03InternCls::TreBld ( int              iKey,
   return iStat;
 }
 //=============================================================================
+int sstRec03InternCls::TreSeaEQ  (int                 iKey,
+                                  sstRec03TreeKeyCls *oTre,
+                                  void               *Val,
+                                  dREC03RECNUMTYP    *SNr)
+//.............................................................................
+{
+  // int iRet;
+  int iStat;
+//.............................................................................
+  if (iKey != 0) return -1;
+  // if (oTre->iTriNo <= 0 || oTre->iTriNo >= CINT2_MAX) return -2;
+  if (oTre->iTriNo <= 0) return -2;
+  if (oTre->iTriNo > this->iTriAnz) return -2;
+  // iRet = 0;
+  iStat = 0;
+
+
+  if ( this->dActStored > 0)
+  {
+    iStat = this->TreSeaGE ( 0, oTre, Val, SNr);
+  }
+
+  if (iStat < 0)
+  {
+    assert (iStat >= 0);
+  }
+
+  if (iStat == 2)
+  {
+    iStat = 1;    // exact value found
+  }
+  else
+  {
+    iStat = 0;    // nothing found
+    *SNr  = 0;    // reset result
+  }
+
+  return iStat;
+}
+//=============================================================================
 dREC03RECNUMTYP sstRec03InternCls::DSiTreInsert( int                     iKey,
                                                  sstRec03TreeHeaderCls  *oTre,
                                                  dREC03RECNUMTYP         DsNrAlt,
@@ -636,7 +676,7 @@ dREC03RECNUMTYP sstRec03InternCls::DSiTreInsert( int                     iKey,
     // Adressen der Baumstrukturen in den Zwischenspeichern ermitteln
     // Get Adress from tree node data in local memory
     // TreVerw = (sstRec03TreeHeaderCls*) this->Tre;
-    this->poVector->CalcSetPos(LocDs, &Adr2, oTre->iAdrOfs);
+    this->poVector->CalcSetPos(LocDs, &Adr2, oTre->iNodeOfs);
     Baum2 = (sstRec03TreeNodeCls*) Adr2;
 
     // Get Adress of compare value in local memory
@@ -698,10 +738,19 @@ int sstRec03InternCls::TreReadNxtGE (int              iKey,
     iStat = TreSeaNxtGE ( 0, oTre, SNr1, &SNr2);
   }
 
-  // Datensatz an absoluter Position lesen.
-  // Read record SNr from RecMem
   *SNr = SNr2;
-  iStat = this->ReadVector(0,*SNr,DSatz);
+
+  if (SNr2 > 0)
+  {
+    // Read record SNr from RecMem
+   iStat = this->ReadVector(0,*SNr,DSatz);
+  }
+  else
+  {
+    // no record found, reset record memory
+    iStat = this->resetRecord(0,DSatz);
+    iStat = -2;
+  }
 
 // Heavy Errors goes to an assert
   if (iRet < 0)
@@ -803,6 +852,26 @@ int sstRec03InternCls::TreSeaNxtGE ( int               eKey,
   // In Tree oTre for Record 1 seach next greater Record 2
   iKey  = 0;
   iStat = DSiTreSeaNxtGT ( &iKey, oTre, SNr, SNr1, SNr2);
+
+  return iStat;
+}
+//-----------------------------------------------------------------------------
+int sstRec03InternCls::TreSeaGE ( int                  iKey,
+                                  sstRec03TreeKeyCls  *oTre,
+                                  void                *Val,
+                                  dREC03RECNUMTYP     *SNr)
+//-----------------------------------------------------------------------------
+{
+  // int iRet = 0;
+  int iStat = 0;
+//.............................................................................
+  if (iKey != 0) return -1;
+  // if (TreNr <= 0 || TreNr >= CINT2_MAX) return -2;
+  // if (TreNr > DsVerw->TrAnz) return -2;
+
+  // In Baum TreNr den Datensatz mit Wert Val oder nächst größeren suchen
+  // iStat = DSi_TreSeach ( iKey, DsVerw, TreNr, Val, SNr);
+  iStat = this->DSiTreSeach ( iKey, oTre, Val, SNr);
 
   return iStat;
 }
@@ -1195,6 +1264,104 @@ int sstRec03InternCls::DSiCompValue (int                 iKey,
   return iRet;
 }
 //=============================================================================
+int sstRec03InternCls::DSiTreSeach ( int                   iKey,
+                                     sstRec03TreeKeyCls   *oTre,
+                                     void                 *vSearchVal,
+                                     dREC03RECNUMTYP      *xx_SNr)
+{
+  sstRec03TreeHeaderCls  *TreVerw;
+
+  dREC03RECNUMTYP     SNr;          // Record number
+  void       *SAdr;                 // Local record in heap
+  sstRec03TreeNodeCls   SBaum;      // Tree Node data
+
+  int iRet;
+  int iStat;
+//.............................................................................
+  if (iKey != 0) return -1;
+  iRet = 0;
+
+  // Adresse der Baumstruktur im Datensatz ermitteln
+  TreVerw = (sstRec03TreeHeaderCls*) &this->poTre[oTre->iTriNo-1];
+
+  // Zwischenspeicher im Heap für Datensatz anfordern
+  SAdr = malloc ( this->poVector->GetSize());
+  assert(SAdr);
+
+
+  // Einstiegsdatensatz für Baum TreNr ermitteln
+  SNr = TreVerw[oTre->iTriNo-1].dRoot;
+
+  // read record data into local heap record
+  iStat = this->ReadInt(  0, SNr, SAdr);
+
+  // Baumdaten in Baum TreNr für Datensatz SNr zurückliefern
+  iStat = DSiTreDatGet ( 0, TreVerw, SNr, SAdr,  &SBaum);
+
+  if (iStat < 0)
+  {
+    free(SAdr);
+    return -1;
+  }
+
+  *xx_SNr = 0;  // Rückgabedatensatz initialisieren
+
+  // Vergleich der Sortiervariablen
+  while (DSiCompNotEqual( 0, TreVerw, vSearchVal, SAdr)  && (SNr != 0)  )
+  {
+
+    // Vergleich der Sortiervariablen
+    if ( DSiCompSmaller( 0, TreVerw, vSearchVal, SAdr)  )
+    {
+
+      // Gefundener Satz hat größeren Wert
+      // Damit erfüllt er erst einmal die Anforderungen
+      // Weitersuchen...
+      *xx_SNr = SNr;            // Zwischenergebnis
+      SNr     =  SBaum.dLeft_LT;   // In nächster Ebene weitersuchen
+    }
+    else
+    {
+      // Gefundener Satz hat kleineren Wert
+      SNr =  SBaum.dRight_GE;      // In nächster Ebene weitersuchen
+    }
+
+    // Baumdaten in Baum TreNr für Datensatz SNr zurückliefern
+    if (SNr > 0)
+    {
+      iStat = DSiTreDatGet ( 0, TreVerw, SNr, SAdr,  &SBaum);
+    }
+
+  }
+
+  if (SNr > 0)
+  {
+    *xx_SNr = SNr;  // Suchwert genau gefunden
+    iRet = 2;
+  }
+  else if (SNr == 0)
+  {
+    if ( *xx_SNr > 0)
+    {
+      iRet = 1;    // Überhaupt etwas gefunden
+    }
+    else
+    {
+      iRet = 0;    // Nichts gefunden
+    }
+  }
+  else
+  {
+    iRet = -1;    // Irgendein Fehler
+  }
+
+  iStat = 0;
+  // iStat = MemFree ( SAdr);
+  free ( SAdr);
+
+  return iRet;
+}
+//=============================================================================
 int sstRec03InternCls::DSiTreSeaNxtGT ( int                *iKey,
                                         sstRec03TreeKeyCls      *oTre,
                                         dREC03RECNUMTYP     SNr,
@@ -1342,7 +1509,7 @@ int sstRec03InternCls::DSiTreAdrGet ( int                     iKey,
   if (iKey != 0) return -1;
   iret = 0;
 
-  CalcSetPos ( vRecAdr, &vTreeNodeAdr, poTreHead->iAdrOfs);
+  CalcSetPos ( vRecAdr, &vTreeNodeAdr, poTreHead->iNodeOfs);
 
   // Adr are tree node data
   poRecTreNode = (sstRec03TreeNodeCls*) vTreeNodeAdr;
@@ -1366,7 +1533,7 @@ int sstRec03InternCls::DSiTreAdrSet ( int                     iKey,
 //.............................................................................
   if (iKey != 0) return -1;
 
-  CalcSetPos ( vRecAdr, &vTreeNodeAdr, oTreeHead->iAdrOfs);
+  CalcSetPos ( vRecAdr, &vTreeNodeAdr, oTreeHead->iNodeOfs);
 
   // Adr are tree node data
   poRecNodeData = (sstRec03TreeNodeCls*) vTreeNodeAdr;
@@ -1433,10 +1600,67 @@ int sstRec03InternCls::TreWriteNew ( int              iKey,
   return iStat;
 }
 //=============================================================================
-int sstRec03InternCls::TreDel ( int                   iKey,
-                                sstRec03TreeKeyCls   *oTre,
-                                void                 *vSearchValue,
-                                dREC03RECNUMTYP      *dRecNo)
+int sstRec03InternCls::TreWritVector ( int               Key,
+                                       void             *SatzAdr,
+                                       dREC03RECNUMTYP   SNr)
+//.............................................................................
+{
+  void         *Adr1;   // erste Vergleichsvariable  (Typenlos)
+  int        TreNr;   // Der zu füllende Baum
+  dREC03RECNUMTYP    Root;
+
+  int iStat = 0;
+  int iRet = 0;
+//.............................................................................
+  if (Key != 0) return -1;
+
+  if (this->dActStored > 1)
+  {
+    // Baum kann nur ermittelt werden, wenn mehr als ein Datensatz vorhanden
+
+    // record is in intern vector memory
+    iStat = this->ReadInt(0,SNr,this->poVector->GetAdr());
+    assert(iStat >= 0);
+
+
+    // Die Sortierung aller Bäume aktualisieren
+    for( TreNr=1; TreNr <= this->iTriAnz; TreNr++)
+    {
+
+      // Knoten aus Baum löschen
+      // Die Verweise  auf SNr in den anderen Datensätzen müssen auch gelöscht werden.
+      iStat = this->TreDelIntern ( 0, &this->poTre[TreNr-1],  SNr);
+
+    }
+
+    // Datensatz an absoluter Position schreiben
+    // Die Baumdaten werden neu initialisiert
+    iStat = this->WritVector ( 0, SatzAdr, SNr);
+
+    // Die Sortierung aller Bäume aktualisieren
+    for( TreNr=1; TreNr <= this->iTriAnz; TreNr++)
+    {
+
+
+      // Get Adress of compare value in local memory
+      int iUsrOfs = 0;
+      this->poVector->GetOffset(0,this->poRecMemUsrKey,&iUsrOfs);
+      this->poVector->CalcSetPos(this->poVector->GetAdr(), &Adr1, (iUsrOfs + this->poTre[TreNr-1].iOffset));
+
+
+      // Datensatz in Baum eintragen
+      Root = this->poTre[TreNr-1].dRoot;
+      Root = this->DSiTreInsert( 0, &this->poTre[TreNr-1], Root , SNr, Adr1);
+    }
+  }
+
+  return iRet;
+}
+//=============================================================================
+int sstRec03InternCls::TreDelValue ( int                   iKey,
+                                     sstRec03TreeKeyCls   *oTre,
+                                     void                 *vSearchValue,
+                                     dREC03RECNUMTYP      *dRecNo)
 //-----------------------------------------------------------------------------
 {
   void *v_cc, *v_pp, *v_xx, *v_tt, *v_tr, *v_cl; // 6 local records in heap
@@ -1635,6 +1859,229 @@ int sstRec03InternCls::TreDel ( int                   iKey,
   else return 0;
 }
 //=============================================================================
+int sstRec03InternCls::TreDelNumber ( int                   iKey,
+                                      dREC03RECNUMTYP      dRecNo)
+//-----------------------------------------------------------------------------
+{
+  int        TreNr = 0;
+  int        iStat = 0;
+  //-----------------------------------------------------------------------------
+  if ( iKey != 0) return -1;
+
+  // Loop over all defined trees
+  for( TreNr=1; TreNr <= this->iTriAnz; TreNr++)
+  {
+
+    // Delete record with number from given tree
+    iStat = this->TreDelIntern ( 0, &this->poTre[TreNr-1],  dRecNo);
+
+  }
+  return iStat;
+}
+//=============================================================================
+int sstRec03InternCls::TreDelIntern ( int                   iKey,
+                                      sstRec03TreeHeaderCls   *poTreHead,
+                                      dREC03RECNUMTYP      dRecNo)
+//-----------------------------------------------------------------------------
+  {
+  void *v_cc, *v_pp, *v_xx, *v_tt, *v_tr, *v_cl; // 6 local records in heap
+  void *vSearchValue = NULL;
+  sstRec03TreeNodeCls   oTreNode_xx;       // Tree Node Data from record xx
+  sstRec03TreeNodeCls   oTreNode_pp;       // Tree Node Data from record pp
+  sstRec03TreeNodeCls   oTreNode_tt;       // Tree Node Data from record tt
+  sstRec03TreeNodeCls   oTreNode_tr;       // Tree Node Data from record tr
+  sstRec03TreeNodeCls   oTreNode_cc;       // Tree Node Data from record cc
+  sstRec03TreeNodeCls   oTreNode_cl;       // Tree Node Data from record cl
+  dREC03RECNUMTYP    dRecNo_tt = 0;       // Record Number from tt
+  dREC03RECNUMTYP    dRecNo_xx = 0;       // Record Number from xx
+  dREC03RECNUMTYP    dRecNo_pp = 0;       // Record Number from pp
+  dREC03RECNUMTYP    dRecNo_cc = 0;       // Record Number from cc
+  int iStat = 0;
+//-----------------------------------------------------------------------------
+  if ( iKey != 0) return -1;
+
+  // Get Adress of compare value in local memory
+  int iUsrOfs = 0;
+  this->poVector->GetOffset(0,this->poRecMemUsrKey,&iUsrOfs);
+  this->poVector->CalcSetPos(this->poVector->GetAdr(), &vSearchValue, (iUsrOfs + poTreHead->iOffset));
+
+  v_cc = malloc ( this->poVector->GetSize());
+  assert(v_cc);
+  v_pp = malloc (  this->poVector->GetSize());
+  assert(v_pp);
+  v_xx = malloc ( this->poVector->GetSize());
+  assert(v_xx);
+  v_tt = malloc ( this->poVector->GetSize());
+  assert(v_tt);
+  v_tr = malloc ( this->poVector->GetSize());
+  assert(v_tr);
+  v_cl = malloc ( this->poVector->GetSize());
+  assert(v_cl);
+
+  // Datensatz intern lesen
+  // -head- dürfte der Einstieg in den Baum sein, in DSS also SNr = 1
+  // p = head;
+  dRecNo_pp = poTreHead->dRoot;
+
+
+  // DS xx ist der rechte Nachfolger vom Root-Datensatz
+  // Datensatz xx lesen
+  // x = head->r;
+  // Baumdaten in Baum TreNr für Datensatz SNr zurückliefern
+  // dRecNo_xx = this->poTre[oTre->iTriNo-1].dRoot;
+  dRecNo_xx = poTreHead->dRoot;
+
+  iStat = DSiTreDatGet ( 0, poTreHead, dRecNo_xx, v_xx, &oTreNode_xx);
+  // Fatal Errors goes to an assert
+  if (iStat < 0)
+  {
+    // Expression (iRet >= 0) has to be fullfilled
+    assert(0);
+  }
+
+
+  // do loop while true
+  // Vergleich der Sortiervariablen
+  while ( !(DSiCompIsEqual ( 0, poTreHead, vSearchValue, v_xx) && dRecNo_xx==dRecNo))
+  {
+    // p = x;
+    memcpy( v_pp, v_xx, this->poVector->GetSize());
+    dRecNo_pp = dRecNo_xx;
+    oTreNode_pp = oTreNode_xx;
+
+    // x = (v < x->key) ? x->l : x->r;
+    // Vergleich der Sortiervariablen
+
+    if ( DSiCompSmaller ( 0, poTreHead, vSearchValue, v_xx)  )
+    {
+
+      // Datensatz xx lesen
+      // x = x->l;
+      dRecNo_xx =  oTreNode_xx.dLeft_LT;
+    }
+    else
+    {
+      // Datensatz xx lesen
+      // x = x->r;
+      dRecNo_xx =  oTreNode_xx.dRight_GE;
+    }
+
+    // Für Datensatz -pp- die Nachfolger-Adressen im Baum -TreNr- liefern
+    iStat = DSiTreDatGet ( 0, poTreHead, dRecNo_xx, v_xx, &oTreNode_xx);
+
+  //    }
+    }  // end while is not equal
+
+  // t = x;
+  memcpy( v_tt, v_xx, this->poVector->GetSize());
+  dRecNo_tt = dRecNo_xx;
+  oTreNode_tt = oTreNode_xx;
+
+  // Für Datensatz -tt- die Nachfolger-Adressen im Baum -TreNr- liefern
+  // Datensatz tr lesen
+  iStat = DSiTreDatGet ( 0, poTreHead, oTreNode_tt.dRight_GE, v_tr, &oTreNode_tr);
+
+  // if (t->r == z)
+  if (oTreNode_tt.dRight_GE == 0)
+  {
+    // x = x->l;
+    // Datensatz xx lesen
+    dRecNo_xx =  oTreNode_xx.dLeft_LT;
+    iStat = DSiTreDatGet ( 0, poTreHead, dRecNo_xx, v_xx, &oTreNode_xx);
+
+
+  }
+  // else if (t->r->l == z)
+  else if (oTreNode_tr.dLeft_LT == 0)
+  {
+    // x = x->r;
+    // Datensatz xx lesen
+    dRecNo_xx =  oTreNode_xx.dRight_GE;
+    iStat = DSiTreDatGet ( 0, poTreHead, dRecNo_xx, v_xx, &oTreNode_xx);
+
+    // x->l = t->l;
+    oTreNode_xx.dLeft_LT = oTreNode_tt.dLeft_LT;
+    // Für Datensatz -xx- die Nachfolger-Adressen im Baum -TreNr- setzen
+    iStat = DSiTreDatSet ( 0, poTreHead, dRecNo_xx, v_xx, &oTreNode_xx);
+  }
+  else
+  {
+    // c = x->r;
+    // Datensatz xx lesen
+    dRecNo_cc = oTreNode_xx.dRight_GE;
+    iStat = DSiTreDatGet ( 0, poTreHead, dRecNo_cc, v_cc, &oTreNode_cc);
+
+    // Datensatz cl lesen
+    iStat = DSiTreDatGet ( 0, poTreHead, oTreNode_cc.dLeft_LT, v_cl, &oTreNode_cl);
+
+
+    // while (c->l->l != z)
+    while (oTreNode_cl.dLeft_LT != 0)
+    {
+      // c = c->l;
+      // Datensatz cc lesen
+      dRecNo_cc = oTreNode_cc.dLeft_LT;
+      iStat = DSiTreDatGet ( 0, poTreHead, dRecNo_cc, v_cc, &oTreNode_cc);
+
+      // Datensatz cl lesen
+      iStat = DSiTreDatGet ( 0, poTreHead, oTreNode_cc.dLeft_LT, v_cl, &oTreNode_cl);
+
+    }
+    // x = c->l;
+    // Datensatz xx lesen
+    dRecNo_xx = oTreNode_cc.dLeft_LT;
+    iStat = DSiTreDatGet ( 0, poTreHead, dRecNo_xx, v_xx, &oTreNode_xx);
+
+    // Datensatz intern schreiben
+    // c->l = x->r;
+    oTreNode_cc.dLeft_LT = oTreNode_xx.dRight_GE;
+    iStat = DSiTreDatSet ( 0, poTreHead, dRecNo_cc, v_cc, &oTreNode_cc);
+
+    // x->l = t->l;
+    oTreNode_xx.dLeft_LT = oTreNode_tt.dLeft_LT;
+
+    // x->r = t->r;
+    oTreNode_xx.dRight_GE = oTreNode_tt.dRight_GE;
+    iStat = DSiTreDatSet ( 0, poTreHead, dRecNo_xx, v_xx, &oTreNode_xx);
+  }
+
+  oTreNode_tt.dRight_GE = 0;
+  oTreNode_tt.dLeft_LT  = 0;
+  iStat = DSiTreDatSet ( 0, poTreHead, dRecNo_tt, v_tt, &oTreNode_tt);
+
+
+  if (dRecNo_pp != 0)
+  {
+    // if (v < p->Key)
+    if ( DSiCompSmaller ( 0, poTreHead, vSearchValue, v_pp)  )
+    {
+      // p->l = x;
+      oTreNode_pp.dLeft_LT = dRecNo_xx;
+    }
+    else
+    {
+      // p->r = x;
+      oTreNode_pp.dRight_GE = dRecNo_xx;
+    }
+    iStat = DSiTreDatSet ( 0, poTreHead, dRecNo_pp, v_pp, &oTreNode_pp);
+  }
+  else
+  {
+    // Der aktuelle Baum bekommt einen neuen Einstiegs-Datensatz
+    poTreHead->dRoot = dRecNo_xx;
+  }
+
+  free ( v_cl);
+  free ( v_tr);
+  free ( v_tt);
+  free ( v_xx);
+  free ( v_pp);
+  free ( v_cc);
+
+  if(dRecNo_tt > 0) return 1;
+  else return 0;
+}
+//=============================================================================
 int sstRec03InternCls::DSiCompIsEqual ( int                     Key,
                                        sstRec03TreeHeaderCls  *oTre,
                                        void                   *Adr1,
@@ -1653,7 +2100,7 @@ int sstRec03InternCls::DSiCompIsEqual ( int                     Key,
   this->poVector->GetOffset(0,this->poRecMemUsrKey,&iUsrOfs);
   this->poVector->CalcSetPos(CompDs, &Adr2, (iUsrOfs + oTre->iOffset));
 
-  // Vergleicht zwei Variablen ( AdrAlt GT AdrNeu).
+  // Vergleicht zwei Variablen ( AdrAlt EQ AdrNeu).
   iRet = DSiVarCompEQ ( 0, &oTre->eTyp, Adr1, Adr2);
 
   return iRet;
@@ -1676,7 +2123,7 @@ int sstRec03InternCls::DSiCompNotEqual ( int                    Key,
   this->poVector->GetOffset(0,this->poRecMemUsrKey,&iUsrOfs);
   this->poVector->CalcSetPos(CompDs, &Adr2, (iUsrOfs + oTre->iOffset));
 
-  // Vergleicht zwei Variablen ( AdrAlt GT AdrNeu).
+  // Vergleicht zwei Variablen ( AdrAlt NE AdrNeu).
   iRet = this->DSiVarCompNE ( 0, &oTre->eTyp, Adr1, Adr2);
 
   return iRet;
@@ -1699,9 +2146,17 @@ int sstRec03InternCls::DSiCompSmaller ( int                     iKey,
   this->poVector->GetOffset(0,this->poRecMemUsrKey,&iUsrOfs);
   this->poVector->CalcSetPos(CompDs, &Adr2, (iUsrOfs + oTre->iOffset));
 
-  // Vergleicht zwei Variablen ( AdrAlt GT AdrNeu).
-  iRet = this->DSiVarCompLE ( 0, &oTre->eTyp, Adr1, Adr2);
+  // Vergleicht zwei Variablen ( AdrAlt LT AdrNeu).
+  iRet = this->DSiVarCompLT ( 0, &oTre->eTyp, Adr1, Adr2);
 
   return iRet;
+}
+//=============================================================================
+int sstRec03InternCls::resetRecord(int iKey, void *vRecAdr)
+{
+  if ( iKey != 0) return -1;
+
+  memset(vRecAdr,0,this->poVector->GetSize());
+  return 0;
 }
 //=============================================================================

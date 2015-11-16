@@ -178,6 +178,16 @@ int sstRec03Cls::TreBld ( int                   iKey,
 }
 
 //==============================================================================
+int sstRec03Cls::TreSeaEQ  ( int                   iKey,
+                             sstRec03TreeKeyCls   *oTre,
+                             void                 *Val,
+                             dREC03RECNUMTYP      *dRecNo)
+{
+  return this->poRec01Intern->TreSeaEQ ( iKey, oTre, Val, dRecNo);
+
+}
+
+//==============================================================================
 int sstRec03Cls::TreReadNxtGE (int                   iKey,
                                sstRec03TreeKeyCls   *oTre,
                                void                 *DSatz,
@@ -212,12 +222,27 @@ int sstRec03Cls::TreWriteNew( int               iKey,
   return this->poRec01Intern->TreWriteNew( iKey, vRecAdr, dRecNo);
 }
 //==============================================================================
-int sstRec03Cls::TreDel ( int                   iKey,
-                          sstRec03TreeKeyCls   *oTre,
-                          void                 *vSearchValue,
-                          dREC03RECNUMTYP      *dRecNo)
+int sstRec03Cls::TreWritAtPos ( int               iKey,
+                                void             *vRecAdr,
+                                dREC03RECNUMTYP   dRecNo)
+{
+  return this->poRec01Intern->TreWritVector( iKey, vRecAdr, dRecNo);
+
+}
+//==============================================================================
+int sstRec03Cls::TreDelValue ( int                   iKey,
+                               sstRec03TreeKeyCls   *oTre,
+                               void                 *vSearchValue,
+                               dREC03RECNUMTYP      *dRecNo)
 //-----------------------------------------------------------------------------
 {
-  return this->poRec01Intern->TreDel ( iKey, oTre, vSearchValue, dRecNo);
+  return this->poRec01Intern->TreDelValue ( iKey, oTre, vSearchValue, dRecNo);
+}
+//==============================================================================
+int sstRec03Cls::TreDelNumber ( int                      iKey,
+                                dREC03RECNUMTYP          dRecNo)
+//-----------------------------------------------------------------------------
+{
+  return this->poRec01Intern->TreDelNumber( iKey, dRecNo);
 }
 //==============================================================================

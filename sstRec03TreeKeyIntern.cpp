@@ -27,7 +27,7 @@
 sstRec03TreeHeaderCls::sstRec03TreeHeaderCls()
 {
   dRoot = 0;
-  iAdrOfs = 0;
+  iNodeOfs = 0;
   iOffset = 0;
   iSize = 0;
   eTyp = sstRecTyp_No;

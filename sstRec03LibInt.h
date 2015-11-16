@@ -539,7 +539,7 @@ public:
   sstRec03TreeHeaderCls();
   // ~sstRec03TreeHeaderCls();
   dREC03RECNUMTYP    dRoot;             /**< Base record of actual tree */
-  int                iAdrOfs;           /**< Offset of Tree Node data from start of full record */
+  int                iNodeOfs;          /**< Offset of Tree Node data from start of full record */
   int                iOffset;           /**< Offset of sort value from start of user record */
   int                iSize;             /**< Size of sort value */
   sstRec03CompTyp_enum   eTyp;          /**< Type of sort value */
@@ -950,6 +950,28 @@ class sstRec03InternCls
      // ----------------------------------------------------------------------------
      int TreBld ( int              iKey,
                   sstRec03TreeKeyCls   *oTre);
+     //=============================================================================
+     /**
+     * @brief find record with exact search value
+     *
+     * iStat = oDs2.TreSeaEQ  ( iKey, oTre, *Val, *SNr);
+     *
+     * @param iKey   [in]  at the moment 0
+     * @param oTre   [in]  tree object
+     * @param Val    [in]  search value
+     * @param dRecNo [out] Value found at record number
+     *
+     * @return errorstate
+     *
+     * @retval   =0 Nothing found
+     * @retval   =1 Exact value found at dRecNo
+     * @retval   <0 Unspecified Error
+     */
+     //-----------------------------------------------------------------------------
+     int TreSeaEQ  ( int              iKey,
+                     sstRec03TreeKeyCls   *oTre,
+                     void            *Val,
+                     dREC03RECNUMTYP   *dRecNo);
      //==============================================================================
      /**
      * @brief // Insert new record in tree with root record  <BR>
@@ -983,8 +1005,10 @@ class sstRec03InternCls
      *
      * @return Errorstate
      *
-     * @retval   = 0: OK
-     * @retval   < 0: Unspecified Error
+     * @retval   =  0: OK
+     * @retval   = -1: Wrong key
+     * @retval   = -2: nothing found
+     * @retval   <  0: Unspecified Error
      */
      // ----------------------------------------------------------------------------
      int TreReadNxtGE (int              iKey,
@@ -1027,6 +1051,25 @@ class sstRec03InternCls
                        sstRec03TreeKeyCls  *oTre,
                        dREC03RECNUMTYP    SNr1,
                        dREC03RECNUMTYP   *SNr2);
+     //==============================================================================
+     /**
+     * @brief TreSeaGE
+     *
+     * @param iKey [in] For the moment 0
+     * @param oTre [in]
+     * @param Val  [in]
+     * @param SNr  [in]
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int TreSeaGE ( int              iKey,
+                    sstRec03TreeKeyCls   *oTre,
+                    void            *Val,
+                    dREC03RECNUMTYP    *SNr);
      //==============================================================================
      /**
      * @brief // Is true, if Compare Value AdrOld is equal than AdrNew  <BR>
@@ -1214,6 +1257,26 @@ class sstRec03InternCls
                        sstRec03CompValueCls  *poCompValue);
      //==============================================================================
      /**
+     * @brief // In Tree oTre seach Value and return record number <BR>
+     * iStat = oRecMem.DSiTreSearch( iKey, oTre, Val, xx_SNr);
+     *
+     * @param iKey     [in]  0
+     * @param oTre     [in]  Tree object
+     * @param Val      [in]  Seach Value
+     * @param xx_SNr   [out] Result Record Number
+     *
+     * @return Errorstate
+     *
+     * @retval   = 0: OK
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int DSiTreSeach ( int                  iKey,
+                       sstRec03TreeKeyCls  *oTre,
+                       void                *Val,
+                       dREC03RECNUMTYP     *xx_SNr);
+     //==============================================================================
+     /**
      * @brief // In Tree oTre for Record 1 seach next greater Record 2 <BR>
      * iStat = oRecMem.DSiTreSeaNxtGT(iKey,oTre,dRecNo,dRecNo1,*dRecNo2);
      *
@@ -1337,10 +1400,30 @@ class sstRec03InternCls
      int TreWriteNew ( int              iKey,
                        void            *vRecAdr,
                        dREC03RECNUMTYP *dRecNo);
+     //=============================================================================
+     /**
+     * @brief // Datensatz an absoluter Position schreiben <BR>
+     * iStat = DS1_TreShrAbs ( Key, *DsVerw, *DSatz, SNr);
+     *
+     * @param iKey    [in]  For the moment 0
+     * @param vRecAdr [in] record adress
+     * @param dRecNo  [in] Write record at position
+     *
+     * @return Fehlerstatus
+     *
+     * @retval   =0 = OK
+     * @retval   <0 = allgemeiner Fehler
+     *
+     * @date 07.11.15
+     */
+     //-----------------------------------------------------------------------------
+     int TreWritVector ( int               iKey,
+                         void             *vRecAdr,
+                         dREC03RECNUMTYP   dRecNo);
      //==============================================================================
      /**
      * @brief // Delete record with value from tree   <BR>
-     * iStat = oRecMem.TreDel ( iKey, *oTre, *v, *dRecNo);
+     * iStat = oRecMem.TreDelValue ( iKey, *oTre, *v, *dRecNo);
      *
      * @param iKey         [in] For the moment 0
      * @param oTre         [in] Tree object
@@ -1354,10 +1437,46 @@ class sstRec03InternCls
      * @retval   < 0: Unspecified Error
      */
      // ----------------------------------------------------------------------------
-     int TreDel ( int                   iKey,
-                  sstRec03TreeKeyCls   *oTre,
-                  void                 *vSearchValue,
-                  dREC03RECNUMTYP      *dRecNo);
+     int TreDelValue ( int                   iKey,
+                       sstRec03TreeKeyCls   *oTre,
+                       void                 *vSearchValue,
+                       dREC03RECNUMTYP      *dRecNo);
+     //==============================================================================
+     /**
+     * @brief // Delete record with record number from all trees   <BR>
+     * iStat = oRecMem.TreDelNumber ( iKey, *oTreHead, dRecNo);
+     *
+     * @param iKey         [in] For the moment 0
+     * @param dRecNo       [in] record number to delete
+     *
+     * @return Errorstate
+     *
+     * @retval   = 1: Record with Value found and deleted from tree(s)
+     * @retval   = 0: Value not found
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int TreDelNumber ( int                      iKey,
+                        dREC03RECNUMTYP          dRecNo);
+     //==============================================================================
+     /**
+     * @brief // Delete record with record number from given tree   <BR>
+     * iStat = oRecMem.TreDelIntern ( iKey, *oTreHead, dRecNo);
+     *
+     * @param iKey         [in] For the moment 0
+     * @param oTreHead     [in] Tree object
+     * @param dRecNo       [in] record number to delete
+     *
+     * @return Errorstate
+     *
+     * @retval   = 1: Record with Value found and deleted from tree(s)
+     * @retval   = 0: Value not found
+     * @retval   < 0: Unspecified Error
+     */
+     // ----------------------------------------------------------------------------
+     int TreDelIntern ( int                      iKey,
+                        sstRec03TreeHeaderCls   *oTreHead,
+                        dREC03RECNUMTYP          dRecNo);
      //==============================================================================
 
 
@@ -1379,6 +1498,8 @@ class sstRec03InternCls
     void CalcSetPos ( void   *BasPtr,
                       void  **IdxPtr,
                       long    Offs) const;
+    //=============================================================================
+    int resetRecord(int iKey, void *vRecAdr);
     //=============================================================================
 
     // dREC03RECSIZTYP dUsrSize;     /**< Size of each user record */

@@ -462,8 +462,29 @@ public:
   * @retval   < 0: Unspecified Error
   */
   // ----------------------------------------------------------------------------
-  int TreBld ( int              iKey,
+  int TreBld ( int                   iKey,
                sstRec03TreeKeyCls   *poTre);
+  //=============================================================================
+  /**
+  * @brief // Find record with exact search value  <BR>
+  * iStat = oRecMem.TreSeaEQ  ( iKey, poTreKey, *vSearchVal, *dRecNo);
+  *
+  * @param iKey       [in]  at the moment 0
+  * @param poTreKey   [in]  tree key object
+  * @param vSearchVal [in]  search value
+  * @param dRecNo     [out] Value found at record number
+  *
+  * @return errorstate
+  *
+  * @retval   =0 Nothing found
+  * @retval   =1 Exact value found at dRecNo
+  * @retval   <0 Unspecified Error
+  */
+  //-----------------------------------------------------------------------------
+  int TreSeaEQ  ( int                   iKey,
+                  sstRec03TreeKeyCls   *poTreKey,
+                  void                 *vSearchVal,
+                  dREC03RECNUMTYP      *dRecNo);
   //=============================================================================
   /**
   * @brief Get next greater or equal <BR>
@@ -541,10 +562,30 @@ public:
   int TreWriteNew ( int              iKey,
                     void            *vRecAdr,
                     dREC03RECNUMTYP *dRecNo);
+  //=============================================================================
+  /**
+  * @brief // Write record at position and update tree(s) <BR>
+  * iStat = oRecMem.TreWritAtPos ( iKey, vRecAdr, dRecNo);
+  *
+  * @param iKey    [in]  For the moment 0
+  * @param vRecAdr [in] record adress
+  * @param dRecNo  [in] Write record at position
+  *
+  * @return Fehlerstatus
+  *
+  * @retval   =0 = OK
+  * @retval   <0 = allgemeiner Fehler
+  *
+  * @date 07.11.15
+  */
+  //-----------------------------------------------------------------------------
+  int TreWritAtPos ( int               iKey,
+                     void             *vRecAdr,
+                     dREC03RECNUMTYP   dRecNo);
   //==============================================================================
   /**
   * @brief // Delete next record with given value from tree   <BR>
-  * iStat = oRecMem.TreDel ( iKey, *oTreKey, *vSearchValue, *dRecNo);
+  * iStat = oRecMem.TreDelValue ( iKey, *oTreKey, *vSearchValue, *dRecNo);
   *
   * @param iKey         [in] For the moment 0
   * @param oTreKey      [in] Tree object
@@ -558,10 +599,27 @@ public:
   * @retval   < 0: Unspecified Error
   */
   // ----------------------------------------------------------------------------
-  int TreDel ( int                   iKey,
-               sstRec03TreeKeyCls   *oTreKey,
-               void                 *vSearchValue,
-               dREC03RECNUMTYP      *dRecNo);
+  int TreDelValue ( int                   iKey,
+                    sstRec03TreeKeyCls   *oTreKey,
+                    void                 *vSearchValue,
+                    dREC03RECNUMTYP      *dRecNo);
+  //==============================================================================
+  /**
+  * @brief // Delete record with record number from all defined trees   <BR>
+  * iStat = oRecMem.TreDelNumber ( iKey, dRecNo);
+  *
+  * @param iKey         [in] For the moment 0
+  * @param dRecNo       [in] record number to delete
+  *
+  * @return Errorstate
+  *
+  * @retval   = 1: Record with Value found and deleted from tree(s)
+  * @retval   = 0: Value not found
+  * @retval   < 0: Unspecified Error
+  */
+  // ----------------------------------------------------------------------------
+  int TreDelNumber ( int                      iKey,
+                     dREC03RECNUMTYP          dRecNo);
   //=============================================================================
 
 private:
